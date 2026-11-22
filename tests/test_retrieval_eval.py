@@ -16,6 +16,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
+from llama_index.core.base.embeddings.base import BaseEmbedding
 from pydantic import ValidationError
 
 from retrieval_eval.dataset import (
@@ -41,34 +42,63 @@ from retrieval_stack.evaluation.metrics import (
 DATASET_PATH = Path(__file__).resolve().parent.parent / "retrieval_eval" / "data" / "support_eval_dataset.json"
 
 
-class FakeEmbedding:
-    """Deterministic, dependency-free embedding substitute."""
+class FakeEmbedding(BaseEmbedding):
+    """Deterministic, dependency-free LlamaIndex embedding substitute."""
 
-    def __init__(self, model_name: str = "fake-embed"):
-        self.model_name = model_name
+    @classmethod
+    def class_name(cls) -> str:
+        return "FakeEmbedding"
 
-    def _vec(self, text: str):
+    def _embed(self, text: str):
         digest = hashlib.sha256(text.encode("utf-8")).digest()
         vals = [(b / 255.0) - 0.5 for b in digest[:16]]
         norm = math.sqrt(sum(v * v for v in vals)) or 1.0
         return [v / norm for v in vals]
 
+    def _get_query_embedding(self, query: str):
+        return self._embed(query)
+
+    async def _aget_query_embedding(self, query: str):
+        return self._get_query_embedding(query)
+
+    def _get_text_embedding(self, text: str):
+        return self._embed(text)
+
+    async def _aget_text_embedding(self, text: str):
+        return self._get_text_embedding(text)
+
     def embed(self, text: str):
-        return self._vec(text)
+        return self._embed(text)
 
     def embed_batch(self, texts):
-        return [self._vec(t) for t in texts]
+        return [self._embed(text) for text in texts]
 
 
 class FakeCrossEncoder:
-    """Deterministic, dependency-free cross-encoder substitute."""
+    """Deterministic, dependency-free reranker substitute."""
 
-    def __init__(self, model_name: str = "fake-cross-encoder"):
-        self.model_name = model_name
+    def __init__(self, model: str = "fake-cross-encoder", top_n: int = 50, **kwargs):
+        self.model = model
+        self.top_n = top_n
 
     def score(self, query: str, texts):
         q = set(query.lower().split())
-        return [float(len(q & set(t.lower().split()))) for t in texts]
+        return [float(len(q & set(text.lower().split()))) for text in texts]
+
+    def postprocess_nodes(self, nodes, query_bundle=None, query_str=None):
+        query = None
+        if query_bundle is not None:
+            query = query_bundle.query_str
+        elif query_str is not None:
+            query = query_str
+        if query is None:
+            return list(nodes)[: self.top_n]
+
+        texts = [node.node.get_content() for node in nodes]
+        scores = self.score(query, texts)
+        for node, score in zip(nodes, scores):
+            node.score = float(score)
+        return sorted(nodes, key=lambda node: -(node.score or 0.0))[: self.top_n]
 
 
 def _fresh_dataset(tenant_id: str | None = None) -> RetrievalEvalDataset:
@@ -83,7 +113,7 @@ def _install_fakes(monkeypatch):
     import app.knowledge.service as svc_mod
 
     monkeypatch.setattr(svc_mod, "SentenceTransformerEmbedding", FakeEmbedding)
-    monkeypatch.setattr(svc_mod, "SentenceTransformerCrossEncoder", FakeCrossEncoder)
+    monkeypatch.setattr(svc_mod, "SentenceTransformerRerank", FakeCrossEncoder)
     monkeypatch.setattr(runner_mod, "_sentence_transformers_available", lambda: True)
 
 
