@@ -14,9 +14,10 @@ class AgentGraphState(TypedDict, total=False):
 
     ``messages`` uses LangGraph's ``add_messages`` reducer so message order and
     message types are preserved as nodes append updates. ``iteration_count``
-    tracks model rounds for the graph's loop limit. Application-owned session,
-    history, memory, tenant, and approval state deliberately stay outside this
-    graph state.
+    tracks model rounds for the graph's loop limit, and ``tool_call_count``
+    tracks the per-invocation tool budget. Application-owned session, history,
+    memory, tenant, and approval state deliberately stay outside this graph
+    state.
     """
 
     input: str | None
@@ -24,6 +25,7 @@ class AgentGraphState(TypedDict, total=False):
     answer: str | None
     error: str | None
     iteration_count: int
+    tool_call_count: int
 
 
 @dataclass(frozen=True)

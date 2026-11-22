@@ -27,7 +27,7 @@ def run_agent_graph(
     async abstraction until a milestone needs one. Each call starts from a new
     graph state, so independent invocations do not share messages.
     """
-    payload: dict[str, Any] = {"input": message}
+    payload: dict[str, Any] = {"input": message, "tool_call_count": 0}
     if history:
         payload["messages"] = list(history)
 

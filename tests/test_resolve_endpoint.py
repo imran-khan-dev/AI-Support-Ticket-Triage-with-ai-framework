@@ -191,6 +191,23 @@ def test_resolve_endpoint_provider_failure_returns_502():
         assert "api_key" not in detail.lower()
 
 
+def test_resolve_endpoint_unexpected_agent_error_returns_generic_500():
+    """An unexpected graph execution error uses the generic failure response."""
+    with patch('app.modules.agent.service.run_agent') as mock_run_agent:
+        mock_run_agent.return_value = _make_agent_result(
+            status="internal_error",
+            error="Agent service error.",
+        )
+        with _authenticated() as headers:
+            response = client.post(
+                "/api/v1/tickets/agent/run",
+                json={"message": "Hello."},
+                headers=headers,
+            )
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Agent service error."
+
+
 # ---------------------------------------------------------------------------
 # Iteration-limit outcome
 # ---------------------------------------------------------------------------
@@ -216,6 +233,49 @@ def test_resolve_endpoint_max_iterations_reached():
         assert data["status"] == "max_iterations_reached"
         assert data["error"] is not None
         TicketResolveResponse(**data)
+
+
+def test_agent_endpoint_executes_langgraph_application_path():
+    """The active endpoint reaches the LangGraph-backed application path."""
+    from langchain_core.messages import AIMessage, HumanMessage
+    from app.agent_core.langgraph import AgentGraphResult
+
+    sentinel_graph = object()
+    graph_result = AgentGraphResult(
+        messages=[
+            HumanMessage(content="Graph question"),
+            AIMessage(content="Graph answer"),
+        ],
+        answer="Graph answer",
+        error=None,
+    )
+
+    with patch('app.modules.agent.service.groq_client', object()):
+        with patch(
+            'app.modules.agent.service.compile_agent_graph',
+            return_value=sentinel_graph,
+        ) as mock_compile:
+            with patch(
+                'app.modules.agent.service.run_agent_graph',
+                return_value=graph_result,
+            ) as mock_run:
+                with _authenticated() as headers:
+                    response = client.post(
+                        "/api/v1/tickets/agent/run",
+                        json={"message": "Graph question"},
+                        headers=headers,
+                    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["answer"] == "Graph answer"
+    assert mock_compile.called
+    compile_kwargs = mock_compile.call_args.kwargs
+    assert compile_kwargs["tool_executor"] is not None
+    assert compile_kwargs["tool_definitions"]
+    assert mock_run.call_args.args[0] == "Graph question"
+    assert mock_run.call_args.kwargs["graph"] is sentinel_graph
 
 
 # ---------------------------------------------------------------------------

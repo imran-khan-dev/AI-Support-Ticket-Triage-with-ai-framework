@@ -30,28 +30,39 @@ from app.agent_core.langgraph.nodes import (
 )
 from app.agent_core.langgraph.state import AgentGraphResult, AgentGraphState
 from app.agent_core.langgraph.tools import (
+    DEFAULT_MAX_TOOL_CALLS,
+    MALFORMED_TOOL_CALL_IDS_ERROR,
+    TOOL_CALL_LIMIT_ERROR,
+    TOOL_CALL_LIMIT_MESSAGE,
+    MalformedToolCallIdsError,
     ToolExecutor,
     ToolRuntime,
     build_application_tool_runtime,
     build_tool_runtime,
     execute_tool_calls,
+    validate_tool_call_ids,
 )
 
 __all__ = [
     "AGENT_GRAPH",
+    "DEFAULT_MAX_TOOL_CALLS",
     "EMPTY_INPUT_ERROR",
     "EMPTY_RESPONSE_ERROR",
+    "MALFORMED_TOOL_CALL_IDS_ERROR",
     "MAX_ITERATIONS",
     "MAX_ITERATIONS_ERROR",
     "NO_MODEL_ERROR",
     "NO_TOOL_CALLS_ERROR",
     "NO_TOOL_EXECUTOR_ERROR",
     "PROVIDER_ERROR",
+    "TOOL_CALL_LIMIT_ERROR",
+    "TOOL_CALL_LIMIT_MESSAGE",
     "AgentGraphResult",
     "AgentGraphState",
     "ChatModelProviderError",
     "ChatModelRunner",
     "GroqChatModelRunner",
+    "MalformedToolCallIdsError",
     "ToolExecutor",
     "ToolRuntime",
     "build_agent_graph",
@@ -67,4 +78,5 @@ __all__ = [
     "route_after_model",
     "run_agent_graph",
     "should_continue",
+    "validate_tool_call_ids",
 ]
