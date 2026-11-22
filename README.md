@@ -8,6 +8,7 @@ reusable AI components:
 | Component | Responsibility | Location |
 |-----------|---------------|----------|
 | **LlamaIndex retrieval** | Active knowledge ingestion, chunking, BM25/dense/hybrid retrieval, and reranking | `app/knowledge/` |
+| **LangGraph foundation** | Typed agent graph state, initialization node, compiled graph, and execution boundary | `app/agent_core/langgraph/` |
 | **Retrieval Stack (standalone)** | Legacy custom retrieval implementation retained for offline comparison | `Retrieval-Stack/` |
 | **Agent Orchestrator** | Provider-independent AgentLoop, tool execution, retries, tracing, hooks, execution limits | `Agent Orchestrator/` |
 | **Eval Harness** | Datasets, evaluators, experiment runner, metrics, regression checks, reports | `eval_harness/` |
@@ -25,6 +26,14 @@ hybrid fusion, and cross-encoder reranking. PostgreSQL remains the source of
 truth for documents and chunks. Each tenant gets its own LlamaIndex nodes and
 vector index; no index contains more than one tenant's chunks. The standalone
 Retrieval Stack is still present but is not imported by the application.
+
+## Agent Orchestration Foundation
+
+The active agent endpoint still uses the existing custom orchestrator. The
+isolated LangGraph foundation in `app/agent_core/langgraph/` provides a typed
+graph state, an initialization node, a graph factory, a compiled graph, and a
+synchronous execution boundary. It is not wired into the endpoint yet and does
+not add checkpointing, tool routing, Groq invocation, or persistence.
 
 ## Groq Provider Adapter
 
@@ -101,11 +110,32 @@ Run focused tests:
 python -m pytest tests/test_agent_sessions.py tests/test_agent_history.py tests/test_agent_memory_integration.py tests/test_agent_orchestration.py tests/test_agent.py tests/test_groq_provider.py tests/test_orchestrator_tools.py -q
 ```
 
-Run the full suite:
+Run the full application backend suite:
 
 ```powershell
 python -m pytest -q
 ```
+
+`pytest.ini` scopes that command to `backend/tests/`. The standalone components
+are separate pytest projects with their own `pyproject.toml`; run them from their
+own directories:
+
+```powershell
+# Retrieval Stack
+cd Retrieval-Stack
+python -m pytest -q
+
+# Agent Orchestrator
+cd "Agent Orchestrator"
+python -m pytest -q
+
+# Eval Harness
+cd eval_harness
+python -m pytest -q
+```
+
+The Eval Harness declares `pytest-asyncio` in its `test` extra; use an
+environment where that extra is installed when running its suite.
 
 The suite uses the isolated PostgreSQL test database `ticket_triage_test`. Never run tests against production. Set `TEST_DATABASE_URL` to override the connection string.
 
