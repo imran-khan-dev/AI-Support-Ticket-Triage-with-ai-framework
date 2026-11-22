@@ -218,6 +218,49 @@ def test_resolve_endpoint_max_iterations_reached():
         TicketResolveResponse(**data)
 
 
+def test_agent_endpoint_executes_langgraph_application_path():
+    """The active endpoint reaches the LangGraph-backed application path."""
+    from langchain_core.messages import AIMessage, HumanMessage
+    from app.agent_core.langgraph import AgentGraphResult
+
+    sentinel_graph = object()
+    graph_result = AgentGraphResult(
+        messages=[
+            HumanMessage(content="Graph question"),
+            AIMessage(content="Graph answer"),
+        ],
+        answer="Graph answer",
+        error=None,
+    )
+
+    with patch('app.modules.agent.service.groq_client', object()):
+        with patch(
+            'app.modules.agent.service.compile_agent_graph',
+            return_value=sentinel_graph,
+        ) as mock_compile:
+            with patch(
+                'app.modules.agent.service.run_agent_graph',
+                return_value=graph_result,
+            ) as mock_run:
+                with _authenticated() as headers:
+                    response = client.post(
+                        "/api/v1/tickets/agent/run",
+                        json={"message": "Graph question"},
+                        headers=headers,
+                    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["answer"] == "Graph answer"
+    assert mock_compile.called
+    compile_kwargs = mock_compile.call_args.kwargs
+    assert compile_kwargs["tool_executor"] is not None
+    assert compile_kwargs["tool_definitions"]
+    assert mock_run.call_args.args[0] == "Graph question"
+    assert mock_run.call_args.kwargs["graph"] is sentinel_graph
+
+
 # ---------------------------------------------------------------------------
 # Existing /analyze endpoint continues to work
 # ---------------------------------------------------------------------------

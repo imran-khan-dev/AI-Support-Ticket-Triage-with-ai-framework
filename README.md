@@ -27,17 +27,19 @@ truth for documents and chunks. Each tenant gets its own LlamaIndex nodes and
 vector index; no index contains more than one tenant's chunks. The standalone
 Retrieval Stack is still present but is not imported by the application.
 
-## Agent Orchestration Foundation
+## Agent Orchestration
 
-The active agent endpoint still uses the existing custom orchestrator. The
-isolated LangGraph foundation in `app/agent_core/langgraph/` provides a typed
-graph state, initialization and model-invocation nodes, an optional tool
-execution node with conditional routing back to the model, a bounded loop, a
-Groq model runner that preserves provider tool calls, a graph factory, a
-compiled graph, and a synchronous execution boundary. It is not wired into the
-endpoint yet and does not add checkpointing or persistence. Trusted tenant,
-database, and approval context is bound into the application-owned tool
-registry outside the graph state.
+The active agent endpoint uses LangGraph for orchestration. The application
+service in `app/modules/agent/service.py` builds a per-request graph from the
+LangGraph implementation in `app/agent_core/langgraph/`, using the existing Groq
+model runner and the application-owned tool runtime. LangGraph handles model
+invocation, tool-call routing, conditional tool execution, loop limits, and
+tool-call validation. The FastAPI route, request/response contracts, session
+handling, history, memory, transcript persistence, tenant isolation, and
+approval enforcement remain application-owned. Trusted tenant, database, and
+approval context is bound into the tool registry outside the graph state. The
+legacy custom orchestrator remains intact but is no longer the active endpoint
+execution path.
 
 ## Groq Provider Adapter
 
