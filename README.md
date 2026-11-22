@@ -2,11 +2,13 @@
 
 ## Architecture — Three Reusable Components
 
-The backend integrates three standalone, reusable AI components:
+The backend combines framework-based application services with standalone,
+reusable AI components:
 
 | Component | Responsibility | Location |
 |-----------|---------------|----------|
-| **Retrieval Stack** | Document ingestion, chunking, BM25/dense/hybrid retrieval, reranking, offline evaluation | `Retrieval-Stack/` |
+| **LlamaIndex retrieval** | Active knowledge ingestion, chunking, BM25/dense/hybrid retrieval, and reranking | `app/knowledge/` |
+| **Retrieval Stack (standalone)** | Legacy custom retrieval implementation retained for offline comparison | `Retrieval-Stack/` |
 | **Agent Orchestrator** | Provider-independent AgentLoop, tool execution, retries, tracing, hooks, execution limits | `Agent Orchestrator/` |
 | **Eval Harness** | Datasets, evaluators, experiment runner, metrics, regression checks, reports | `eval_harness/` |
 
@@ -14,6 +16,15 @@ The application layer owns session lifecycle, tenant-scoped session resolution,
 conversation history, agent memory, transcript persistence, approval gating,
 trusted tenant/database context injection, and HTTP response contracts. The
 orchestrator owns the agent execution loop and tool dispatch only.
+
+## Knowledge Retrieval
+
+The active knowledge path uses LlamaIndex for document/node representation,
+sentence splitting, embeddings, BM25 retrieval, vector retrieval, reciprocal-rank
+hybrid fusion, and cross-encoder reranking. PostgreSQL remains the source of
+truth for documents and chunks. Each tenant gets its own LlamaIndex nodes and
+vector index; no index contains more than one tenant's chunks. The standalone
+Retrieval Stack is still present but is not imported by the application.
 
 ## Groq Provider Adapter
 

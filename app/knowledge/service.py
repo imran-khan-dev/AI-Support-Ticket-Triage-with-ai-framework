@@ -1,18 +1,35 @@
 """Knowledge base service layer.
 
-Wraps Retrieval Stack components (DocumentIngestor, ChunkingService, BM25Searcher, DenseSearcher)
-with strict tenant isolation. Each tenant gets its own in-memory BM25 and dense vector indexes.
+The application owns tenant-scoped document and chunk persistence. LlamaIndex
+provides the retrieval infrastructure: document/node representation, sentence
+splitting, embeddings, BM25 retrieval, vector retrieval, hybrid fusion, and
+reranking. Every index is built only from chunks belonging to one tenant.
 """
 
 from __future__ import annotations
 
 import hashlib
-import os
-import tempfile
+import re
 from dataclasses import dataclass
 from typing import Literal
 
+import pymupdf
+import tiktoken
+from llama_index.core import VectorStoreIndex
+from llama_index.core.base.embeddings.base import BaseEmbedding
+from llama_index.core.llms import MockLLM
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.postprocessor.types import BaseNodePostprocessor
+from llama_index.core.retrievers import QueryFusionRetriever
+from llama_index.core.retrievers.fusion_retriever import FUSION_MODES
+from llama_index.core.schema import Document, NodeWithScore, QueryBundle, TextNode
+from llama_index.postprocessor.sbert_rerank import SentenceTransformerRerank
+
 from app.database import Database
+from app.knowledge.llamaindex import (
+    FilteredBM25Retriever,
+    SentenceTransformerEmbedding,
+)
 from app.knowledge.repository import (
     KnowledgeChunk,
     KnowledgeDocument,
@@ -26,21 +43,9 @@ from app.knowledge.repository import (
     update_document_status,
 )
 
-# Retrieval Stack imports
-from retrieval_stack.ingestion.service import DocumentIngestor
-from retrieval_stack.ingestion.errors import IngestionError
-from retrieval_stack.chunking.service import ChunkingService, ChunkConfig
-from retrieval_stack.chunking.models import Chunk as RSChunk
-from retrieval_stack.bm25.searcher import BM25Searcher
-from retrieval_stack.bm25.index import InvertedIndex
-from retrieval_stack.bm25.tokenizer import Tokenizer
-from retrieval_stack.bm25.scorer import BM25Scorer
-from retrieval_stack.dense.searcher import DenseSearcher
-from retrieval_stack.dense.index import VectorIndex
-from retrieval_stack.dense.embeddings import SentenceTransformerEmbedding
-from retrieval_stack.hybrid.searcher import HybridSearcher
-from retrieval_stack.reranking.reranker import Reranker
-from retrieval_stack.reranking.provider import SentenceTransformerCrossEncoder
+
+class IngestionError(Exception):
+    """Raised when a document cannot be extracted or split into chunks."""
 
 
 @dataclass(frozen=True)
@@ -57,11 +62,7 @@ class SearchResult:
 
 
 class KnowledgeService:
-    """Tenant-isolated knowledge base service.
-
-    Each tenant has its own BM25 index and dense vector index built from their chunks.
-    Indexes are rebuilt on demand when chunks change.
-    """
+    """Tenant-isolated knowledge base service backed by LlamaIndex."""
 
     def __init__(
         self,
@@ -71,183 +72,271 @@ class KnowledgeService:
         dense_model_name: str = "all-MiniLM-L6-v2",
         reranker_model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2",
         enable_reranking: bool = False,
+        *,
+        embed_model: BaseEmbedding | None = None,
+        reranker: BaseNodePostprocessor | None = None,
     ):
+        if chunk_size <= 0:
+            raise ValueError("chunk_size must be greater than zero")
+        if chunk_overlap < 0:
+            raise ValueError("chunk_overlap cannot be negative")
+        if chunk_overlap >= chunk_size:
+            raise ValueError("chunk_overlap must be smaller than chunk_size")
+
         self._db = db
-        self._chunk_config = ChunkConfig(
+        self._tokenizer = tiktoken.get_encoding("cl100k_base")
+        self._splitter = SentenceSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
-            encoding="cl100k_base",
+            tokenizer=self._tokenizer.encode,
+            include_metadata=False,
+            include_prev_next_rel=False,
         )
-        self._ingestor = DocumentIngestor()
-        self._chunker = ChunkingService(self._chunk_config)
-        self._tokenizer = Tokenizer()
-        self._scorer = BM25Scorer()
         self._dense_model_name = dense_model_name
         self._reranker_model_name = reranker_model_name
         self._enable_reranking = enable_reranking
-        self._dense_embedder: SentenceTransformerEmbedding | None = None
-        self._reranker: Reranker | None = None
-        self._indexes: dict[str, InvertedIndex] = {}
-        self._searchers: dict[str, BM25Searcher] = {}
-        self._dense_indexes: dict[str, VectorIndex] = {}
-        self._dense_searchers: dict[str, DenseSearcher] = {}
-        self._hybrid_searchers: dict[str, HybridSearcher] = {}
+        self._embed_model = embed_model
+        self._reranker = reranker
+        self._nodes: dict[str, list[TextNode]] = {}
+        self._vector_indexes: dict[str, VectorStoreIndex] = {}
 
-    def _get_dense_embedder(self) -> SentenceTransformerEmbedding:
-        if self._dense_embedder is None:
-            self._dense_embedder = SentenceTransformerEmbedding(self._dense_model_name)
-        return self._dense_embedder
+    def _get_embed_model(self) -> BaseEmbedding:
+        if self._embed_model is None:
+            self._embed_model = SentenceTransformerEmbedding(
+                model_name=self._dense_model_name
+            )
+        return self._embed_model
 
-    def _get_reranker(self) -> Reranker:
+    def _get_reranker(self) -> BaseNodePostprocessor:
         if self._reranker is None:
-            provider = SentenceTransformerCrossEncoder(self._reranker_model_name)
-            self._reranker = Reranker(provider)
+            self._reranker = SentenceTransformerRerank(
+                model=self._reranker_model_name,
+                top_n=50,
+            )
         return self._reranker
 
-    def _get_index(self, tenant_id: str) -> InvertedIndex:
-        if tenant_id in self._indexes:
-            return self._indexes[tenant_id]
+    @staticmethod
+    def _normalize_text(text: str) -> str:
+        if not text:
+            return ""
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
+        text = "\n".join(line.rstrip() for line in text.split("\n"))
+        text = re.sub(r"\n{3,}", "\n\n", text)
+        text = re.sub(r"[ \t]{2,}", " ", text)
+        return text.strip()
 
-        index = InvertedIndex(self._tokenizer)
-        chunks = get_all_chunks_for_tenant(self._db, tenant_id)
-        for chunk in chunks:
-            rs_chunk = RSChunk(
-                id=chunk.id,
-                document_id=chunk.document_id,
-                index=chunk.chunk_index,
-                content=chunk.content,
-                token_count=chunk.token_count,
-                metadata=chunk.metadata,
-                start_char=chunk.start_char,
-                end_char=chunk.end_char,
+    def _extract(
+        self,
+        file_content: bytes,
+        filename: str,
+        content_type: str,
+    ) -> str:
+        is_pdf = filename.lower().endswith(".pdf") or content_type == "application/pdf"
+
+        if is_pdf:
+            try:
+                with pymupdf.open(stream=file_content, filetype="pdf") as document:
+                    text = "\n\n".join(page.get_text() for page in document)
+            except Exception as exc:
+                raise IngestionError(f"Failed to extract text from PDF: {filename}") from exc
+        else:
+            try:
+                text = file_content.decode("utf-8")
+            except UnicodeDecodeError:
+                try:
+                    text = file_content.decode("latin-1")
+                except Exception as exc:
+                    raise IngestionError(
+                        f"Failed to extract text from file: {filename}"
+                    ) from exc
+
+        normalized = self._normalize_text(text)
+        if not normalized:
+            raise IngestionError(f"No extractable text found in file: {filename}")
+        return normalized
+
+    def _chunk_text(self, text: str) -> list[dict]:
+        document = Document(text=text)
+        nodes = self._splitter.get_nodes_from_documents([document], show_progress=False)
+
+        chunks: list[dict] = []
+        for node in nodes:
+            content = node.get_content()
+            if not content.strip():
+                continue
+
+            start_char = node.start_char_idx if node.start_char_idx is not None else 0
+            end_char = node.end_char_idx if node.end_char_idx is not None else len(text)
+            if end_char <= start_char:
+                end_char = min(len(text), start_char + len(content))
+
+            chunks.append(
+                {
+                    "chunk_index": len(chunks),
+                    "content": content,
+                    "token_count": len(self._tokenizer.encode(content)),
+                    "start_char": start_char,
+                    "end_char": end_char,
+                    "metadata": {},
+                }
             )
-            index.add_chunk(rs_chunk)
-        self._indexes[tenant_id] = index
-        return index
 
-    def _get_searcher(self, tenant_id: str) -> BM25Searcher:
-        if tenant_id in self._searchers:
-            return self._searchers[tenant_id]
+        return chunks
 
-        index = self._get_index(tenant_id)
-        searcher = BM25Searcher(index, self._scorer, self._tokenizer)
-        self._searchers[tenant_id] = searcher
-        return searcher
-
-    def _get_dense_index(self, tenant_id: str) -> VectorIndex:
-        if tenant_id in self._dense_indexes:
-            return self._dense_indexes[tenant_id]
-
-        index = VectorIndex()
-        chunks = get_all_chunks_for_tenant(self._db, tenant_id)
-        if chunks:
-            embedder = self._get_dense_embedder()
-            embeddings = embedder.embed_batch([chunk.content for chunk in chunks])
-            for chunk, embedding in zip(chunks, embeddings):
-                rs_chunk = RSChunk(
-                    id=chunk.id,
-                    document_id=chunk.document_id,
-                    index=chunk.chunk_index,
-                    content=chunk.content,
-                    token_count=chunk.token_count,
-                    metadata=chunk.metadata,
-                    start_char=chunk.start_char,
-                    end_char=chunk.end_char,
-                )
-                index.add(rs_chunk, embedding)
-        self._dense_indexes[tenant_id] = index
-        return index
-
-    def _get_dense_searcher(self, tenant_id: str) -> DenseSearcher:
-        if tenant_id in self._dense_searchers:
-            return self._dense_searchers[tenant_id]
-
-        index = self._get_dense_index(tenant_id)
-        embedder = self._get_dense_embedder()
-        searcher = DenseSearcher(index, embedder)
-        self._dense_searchers[tenant_id] = searcher
-        return searcher
-
-    def _get_hybrid_searcher(self, tenant_id: str) -> HybridSearcher:
-        if tenant_id in self._hybrid_searchers:
-            return self._hybrid_searchers[tenant_id]
-
-        bm25_searcher = self._get_searcher(tenant_id)
-        dense_searcher = self._get_dense_searcher(tenant_id)
-        searcher = HybridSearcher(bm25_searcher, dense_searcher, rrf_k=60)
-        self._hybrid_searchers[tenant_id] = searcher
-        return searcher
+    @staticmethod
+    def _chunk_to_node(chunk: KnowledgeChunk) -> TextNode:
+        metadata = {
+            "tenant_id": chunk.tenant_id,
+            "document_id": chunk.document_id,
+            "chunk_index": chunk.chunk_index,
+        }
+        metadata.update(chunk.metadata or {})
+        return TextNode(id_=chunk.id, text=chunk.content, metadata=metadata)
 
     def invalidate_index(self, tenant_id: str) -> None:
-        self._indexes.pop(tenant_id, None)
-        self._searchers.pop(tenant_id, None)
-        self._dense_indexes.pop(tenant_id, None)
-        self._dense_searchers.pop(tenant_id, None)
-        self._hybrid_searchers.pop(tenant_id, None)
+        self._nodes.pop(tenant_id, None)
+        self._vector_indexes.pop(tenant_id, None)
+
+    def _get_nodes(self, tenant_id: str) -> list[TextNode]:
+        if tenant_id not in self._nodes:
+            chunks = get_all_chunks_for_tenant(self._db, tenant_id)
+            self._nodes[tenant_id] = [self._chunk_to_node(chunk) for chunk in chunks]
+        return self._nodes[tenant_id]
+
+    def _get_vector_index(self, tenant_id: str) -> VectorStoreIndex | None:
+        if tenant_id not in self._vector_indexes:
+            nodes = self._get_nodes(tenant_id)
+            if not nodes:
+                return None
+            self._vector_indexes[tenant_id] = VectorStoreIndex(
+                nodes=nodes,
+                embed_model=self._get_embed_model(),
+                show_progress=False,
+            )
+        return self._vector_indexes[tenant_id]
+
+    def _get_bm25_retriever(
+        self,
+        tenant_id: str,
+        similarity_top_k: int,
+    ) -> FilteredBM25Retriever | None:
+        nodes = self._get_nodes(tenant_id)
+        if not nodes:
+            return None
+        return FilteredBM25Retriever(
+            nodes=nodes,
+            similarity_top_k=similarity_top_k,
+        )
+
+    def _get_dense_retriever(self, tenant_id: str, similarity_top_k: int):
+        index = self._get_vector_index(tenant_id)
+        if index is None:
+            return None
+        return index.as_retriever(similarity_top_k=similarity_top_k)
+
+    def _get_hybrid_retriever(self, tenant_id: str, similarity_top_k: int):
+        nodes = self._get_nodes(tenant_id)
+        if not nodes:
+            return None
+
+        bm25_retriever = self._get_bm25_retriever(tenant_id, similarity_top_k)
+        dense_retriever = self._get_dense_retriever(tenant_id, similarity_top_k)
+        if bm25_retriever is None or dense_retriever is None:
+            return None
+
+        return QueryFusionRetriever(
+            retrievers=[bm25_retriever, dense_retriever],
+            llm=MockLLM(),
+            mode=FUSION_MODES.RECIPROCAL_RANK,
+            similarity_top_k=similarity_top_k,
+            num_queries=1,
+            use_async=False,
+            verbose=False,
+        )
+
+    def _search_nodes(
+        self,
+        mode: Literal["bm25", "dense", "hybrid"],
+        tenant_id: str,
+        query: str,
+        top_k: int,
+    ) -> list[NodeWithScore]:
+        if top_k <= 0:
+            return []
+
+        if mode == "bm25":
+            retriever = self._get_bm25_retriever(tenant_id, top_k)
+        elif mode == "dense":
+            retriever = self._get_dense_retriever(tenant_id, top_k)
+        else:
+            retriever = self._get_hybrid_retriever(tenant_id, top_k)
+
+        if retriever is None:
+            return []
+        return retriever.retrieve(query)
 
     def _apply_reranking(
         self,
-        tenant_id: str,
         query: str,
-        results: list[SearchResult],
+        nodes: list[NodeWithScore],
         top_k: int,
-    ) -> list[SearchResult]:
-        """Apply cross-encoder reranking to search results."""
-        if not results:
-            return results
-
-        # Convert our SearchResult objects to objects with chunk attribute for the Reranker
-        class RerankCandidate:
-            def __init__(self, search_result: SearchResult):
-                self.chunk_id = search_result.chunk.id
-                self.chunk = RSChunk(
-                    id=search_result.chunk.id,
-                    document_id=search_result.chunk.document_id,
-                    index=search_result.chunk.chunk_index,
-                    content=search_result.chunk.content,
-                    token_count=search_result.chunk.token_count,
-                    metadata=search_result.chunk.metadata,
-                    start_char=search_result.chunk.start_char,
-                    end_char=search_result.chunk.end_char,
-                )
-                self.score = search_result.score
-
-        candidates = [RerankCandidate(r) for r in results]
+    ) -> list[NodeWithScore]:
+        if not nodes:
+            return []
 
         reranker = self._get_reranker()
-        reranked_results = reranker.rerank(query, candidates, top_k=top_k)
+        ranked = reranker.postprocess_nodes(
+            nodes=nodes,
+            query_bundle=QueryBundle(query_str=query),
+        )
+        return ranked[:top_k]
 
-        # Convert back to SearchResult with reranked scores
-        final_results = []
-        for rr in reranked_results:
-            chunks = get_all_chunks_for_tenant(self._db, tenant_id)
-            chunk_map = {c.id: c for c in chunks}
-            if rr.chunk_id in chunk_map:
-                final_results.append(SearchResult(chunk=chunk_map[rr.chunk_id], score=rr.relevance_score, score_type="rerank"))
+    def _to_search_results(
+        self,
+        tenant_id: str,
+        nodes: list[NodeWithScore],
+        score_type: Literal["bm25", "dense", "hybrid", "rerank"],
+    ) -> list[SearchResult]:
+        chunks = get_all_chunks_for_tenant(self._db, tenant_id)
+        chunk_map = {chunk.id: chunk for chunk in chunks}
 
-        return final_results
+        results: list[SearchResult] = []
+        seen: set[str] = set()
+        for node_with_score in nodes:
+            chunk_id = node_with_score.node.node_id
+            if chunk_id in seen:
+                continue
+            chunk = chunk_map.get(chunk_id)
+            if chunk is None:
+                continue
+            seen.add(chunk_id)
+            results.append(
+                SearchResult(
+                    chunk=chunk,
+                    score=float(node_with_score.score or 0.0),
+                    score_type=score_type,
+                )
+            )
+        return results
 
-    def _ingest_bytes(self, file_content: bytes, filename: str, content_type: str) -> str:
-        suffix = ".txt"
-        if content_type == "application/pdf" or filename.lower().endswith(".pdf"):
-            suffix = ".pdf"
-        elif content_type == "text/plain" or filename.lower().endswith(".txt"):
-            suffix = ".txt"
-        elif content_type == "text/markdown" or filename.lower().endswith(".md"):
-            suffix = ".md"
-
-        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-            tmp.write(file_content)
-            tmp_path = tmp.name
-
-        try:
-            doc = self._ingestor.ingest(tmp_path)
-            return doc.content
-        finally:
-            try:
-                os.unlink(tmp_path)
-            except OSError:
-                pass
+    def _run_search(
+        self,
+        mode: Literal["bm25", "dense", "hybrid"],
+        tenant_id: str,
+        query: str,
+        top_k: int,
+        rerank: bool,
+    ) -> list[SearchResult]:
+        nodes = self._search_nodes(mode, tenant_id, query, top_k)
+        if rerank:
+            if not self._enable_reranking:
+                raise RuntimeError(
+                    "Reranking requested but not enabled in KnowledgeService. "
+                    "Set enable_reranking=True."
+                )
+            nodes = self._apply_reranking(query, nodes, top_k)
+            return self._to_search_results(tenant_id, nodes, "rerank")
+        return self._to_search_results(tenant_id, nodes, mode)
 
     def ingest_document(
         self,
@@ -271,20 +360,8 @@ class KnowledgeService:
         update_document_status(self._db, tenant_id, doc.id, "processing")
 
         try:
-            text = self._ingest_bytes(file_content, filename, content_type)
-            chunks = self._chunker.chunk_text(doc.id, text)
-
-            chunk_dicts = [
-                {
-                    "chunk_index": c.index,
-                    "content": c.content,
-                    "token_count": c.token_count,
-                    "start_char": c.start_char,
-                    "end_char": c.end_char,
-                    "metadata": c.metadata,
-                }
-                for c in chunks
-            ]
+            text = self._extract(file_content, filename, content_type)
+            chunk_dicts = self._chunk_text(text)
 
             stored_chunks = create_chunks(
                 self._db,
@@ -293,19 +370,32 @@ class KnowledgeService:
                 chunks=chunk_dicts,
             )
 
-            updated_doc = update_document_status(self._db, tenant_id, doc.id, "completed")
+            updated_doc = update_document_status(
+                self._db, tenant_id, doc.id, "completed"
+            )
             self.invalidate_index(tenant_id)
 
-            return IngestionResult(document=updated_doc, chunks_created=len(stored_chunks))
+            return IngestionResult(
+                document=updated_doc or doc,
+                chunks_created=len(stored_chunks),
+            )
 
-        except IngestionError as e:
+        except IngestionError as exc:
             update_document_status(
-                self._db, tenant_id, doc.id, "failed", error_message=str(e)
+                self._db,
+                tenant_id,
+                doc.id,
+                "failed",
+                error_message=str(exc),
             )
             raise
-        except Exception as e:
+        except Exception as exc:
             update_document_status(
-                self._db, tenant_id, doc.id, "failed", error_message=str(e)
+                self._db,
+                tenant_id,
+                doc.id,
+                "failed",
+                error_message=str(exc),
             )
             raise
 
@@ -317,22 +407,7 @@ class KnowledgeService:
         rerank: bool = False,
     ) -> list[SearchResult]:
         """Search the tenant's knowledge base using BM25 retrieval."""
-        searcher = self._get_searcher(tenant_id)
-        results = searcher.search(query, top_k=top_k)
-
-        search_results = []
-        for result in results:
-            chunks = get_all_chunks_for_tenant(self._db, tenant_id)
-            chunk_map = {c.id: c for c in chunks}
-            if result.chunk_id in chunk_map:
-                search_results.append(SearchResult(chunk=chunk_map[result.chunk_id], score=result.score, score_type="bm25"))
-
-        if rerank:
-            if not self._enable_reranking:
-                raise RuntimeError("Reranking requested but not enabled in KnowledgeService. Set enable_reranking=True.")
-            search_results = self._apply_reranking(tenant_id, query, search_results, top_k)
-
-        return search_results
+        return self._run_search("bm25", tenant_id, query, top_k, rerank)
 
     def search_dense(
         self,
@@ -342,22 +417,7 @@ class KnowledgeService:
         rerank: bool = False,
     ) -> list[SearchResult]:
         """Search the tenant's knowledge base using dense vector retrieval."""
-        searcher = self._get_dense_searcher(tenant_id)
-        results = searcher.search(query, top_k=top_k)
-
-        search_results = []
-        for result in results:
-            chunks = get_all_chunks_for_tenant(self._db, tenant_id)
-            chunk_map = {c.id: c for c in chunks}
-            if result.chunk_id in chunk_map:
-                search_results.append(SearchResult(chunk=chunk_map[result.chunk_id], score=result.score, score_type="dense"))
-
-        if rerank:
-            if not self._enable_reranking:
-                raise RuntimeError("Reranking requested but not enabled in KnowledgeService. Set enable_reranking=True.")
-            search_results = self._apply_reranking(tenant_id, query, search_results, top_k)
-
-        return search_results
+        return self._run_search("dense", tenant_id, query, top_k, rerank)
 
     def search_hybrid(
         self,
@@ -366,25 +426,12 @@ class KnowledgeService:
         top_k: int = 5,
         rerank: bool = False,
     ) -> list[SearchResult]:
-        """Search the tenant's knowledge base using hybrid (BM25 + dense) retrieval with RRF."""
-        searcher = self._get_hybrid_searcher(tenant_id)
-        results = searcher.search(query, top_k=top_k)
+        """Search the tenant's knowledge base using hybrid RRF retrieval."""
+        return self._run_search("hybrid", tenant_id, query, top_k, rerank)
 
-        search_results = []
-        for result in results:
-            chunks = get_all_chunks_for_tenant(self._db, tenant_id)
-            chunk_map = {c.id: c for c in chunks}
-            if result.chunk_id in chunk_map:
-                search_results.append(SearchResult(chunk=chunk_map[result.chunk_id], score=result.rrf_score, score_type="hybrid"))
-
-        if rerank:
-            if not self._enable_reranking:
-                raise RuntimeError("Reranking requested but not enabled in KnowledgeService. Set enable_reranking=True.")
-            search_results = self._apply_reranking(tenant_id, query, search_results, top_k)
-
-        return search_results
-
-    def get_document(self, tenant_id: str, document_id: str) -> KnowledgeDocument | None:
+    def get_document(
+        self, tenant_id: str, document_id: str
+    ) -> KnowledgeDocument | None:
         return get_document(self._db, tenant_id, document_id)
 
     def list_documents(
@@ -395,9 +442,17 @@ class KnowledgeService:
         limit: int = 50,
         offset: int = 0,
     ) -> list[KnowledgeDocument]:
-        return list_documents(self._db, tenant_id, status=status, limit=limit, offset=offset)
+        return list_documents(
+            self._db,
+            tenant_id,
+            status=status,
+            limit=limit,
+            offset=offset,
+        )
 
-    def get_document_chunks(self, tenant_id: str, document_id: str) -> list[KnowledgeChunk]:
+    def get_document_chunks(
+        self, tenant_id: str, document_id: str
+    ) -> list[KnowledgeChunk]:
         return get_chunks_for_document(self._db, tenant_id, document_id)
 
     def delete_document(self, tenant_id: str, document_id: str) -> bool:
