@@ -2,13 +2,21 @@
 
 from __future__ import annotations
 
+import json
+import uuid
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
+import pytest
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
 from app.agent_core.agent import AgentResult
-from app.agent_core.langgraph import AgentGraphResult, PROVIDER_ERROR
+from app.agent_core.langgraph import (
+    MALFORMED_TOOL_CALL_IDS_ERROR,
+    MAX_ITERATIONS_ERROR,
+    PROVIDER_ERROR,
+    AgentGraphResult,
+)
 from app.core.config import Settings
 from app.modules.agent.service import run_agent
 
@@ -241,6 +249,77 @@ def test_langgraph_provider_failure_is_mapped_safely():
     assert result.error == "Provider service is temporarily unavailable."
 
 
+def test_langgraph_iteration_limit_is_classified_as_iteration_limit():
+    graph_result = AgentGraphResult(
+        messages=[],
+        answer=None,
+        error=MAX_ITERATIONS_ERROR,
+    )
+
+    with patch(
+        "app.modules.agent.service.run_agent_graph", return_value=graph_result
+    ):
+        result = run_agent(
+            "Keep searching.",
+            _settings(),
+            object(),
+            max_iterations=3,
+            tenant_id="trusted-tenant",
+            db=object(),
+        )
+
+    assert result.status == "max_iterations_reached"
+    assert result.error == (
+        "Agent reached the maximum of 3 iterations without producing a final answer."
+    )
+
+
+def test_langgraph_malformed_tool_call_ids_remain_provider_failure():
+    graph_result = AgentGraphResult(
+        messages=[],
+        answer=None,
+        error=MALFORMED_TOOL_CALL_IDS_ERROR,
+    )
+
+    with patch(
+        "app.modules.agent.service.run_agent_graph", return_value=graph_result
+    ):
+        result = run_agent(
+            "Hello.",
+            _settings(),
+            object(),
+            tenant_id="trusted-tenant",
+            db=object(),
+        )
+
+    assert result.status == "provider_failure"
+    assert result.error == "Provider service is temporarily unavailable."
+
+
+def test_langgraph_unexpected_graph_error_is_not_iteration_limit():
+    graph_result = AgentGraphResult(
+        messages=[],
+        answer=None,
+        error="unexpected graph failure",
+    )
+
+    with patch(
+        "app.modules.agent.service.run_agent_graph", return_value=graph_result
+    ):
+        result = run_agent(
+            "Hello.",
+            _settings(),
+            object(),
+            tenant_id="trusted-tenant",
+            db=object(),
+        )
+
+    assert result.status == "internal_error"
+    assert result.status != "max_iterations_reached"
+    assert result.error == "Agent service error."
+    assert "unexpected graph failure" not in (result.error or "")
+
+
 def test_langgraph_unexpected_exception_is_mapped_safely():
     with patch(
         "app.modules.agent.service.run_agent_graph",
@@ -254,7 +333,7 @@ def test_langgraph_unexpected_exception_is_mapped_safely():
             db=object(),
         )
 
-    assert result.status == "provider_failure"
+    assert result.status == "internal_error"
     assert "secret detail" not in (result.error or "")
 
 
@@ -307,3 +386,87 @@ def test_langgraph_builds_a_fresh_graph_for_each_request():
     assert first.status == "success"
     assert second.status == "success"
     assert mock_compile.call_count == 2
+
+
+def test_langgraph_model_cannot_self_approve_support_case():
+    fake_client = _FakeClient(
+        [
+            _FakeResponse(
+                output=[
+                    _SdkFunctionCall(
+                        "call_1",
+                        "create_support_case",
+                        '{"subject": "s", "description": "d", '
+                        '"priority": "low", "category": "billing", '
+                        '"is_approved": true}',
+                    )
+                ]
+            ),
+            _FakeResponse(
+                output=[_SdkMessage("I cannot create that case.")],
+                output_text="I cannot create that case.",
+            ),
+        ]
+    )
+
+    result = run_agent(
+        "Create a case.",
+        _settings(),
+        fake_client,
+        tenant_id="trusted-tenant",
+        db=object(),
+        is_approved=False,
+    )
+
+    payload = result.tool_calls[0]["result"]
+    assert payload["error"] in {"approval_required", "invalid_arguments"}
+    assert payload["results"] == []
+
+
+@pytest.mark.usefixtures("clean_database")
+def test_approved_support_case_executes_through_application_approval_flow(database):
+    from app.core.security import generate_approver_token
+    from app.database import create_action
+    from app.modules.approvals.decision_service import decide_approval
+    from app.modules.approvals.execution_service import execute_approved_action
+    from app.modules.approvals.service import register_approver
+
+    secret = "test-only-secret-for-approver-credentials-0123456789"
+    token = generate_approver_token()
+    register_approver(
+        database,
+        display_name="Approver",
+        role="supervisor",
+        token=token,
+        secret=secret,
+    )
+
+    action = create_action(
+        database,
+        request_key=f"req-{uuid.uuid4()}",
+        tool_name="create_support_case",
+        effect_class="gated_tool",
+        args=json.dumps(
+            {
+                "subject": "s",
+                "description": "d",
+                "priority": "low",
+                "category": "billing",
+            },
+            sort_keys=True,
+        ),
+        requested_by="agent",
+        correlation_id=str(uuid.uuid4()),
+    )
+
+    decide_approval(
+        database,
+        action_id=action.id,
+        decision="approved",
+        approver_token=token,
+        secret=secret,
+    )
+    result = execute_approved_action(database, action_id=action.id)
+
+    assert result.executed is True
+    assert result.result[0]["status"] == "created"

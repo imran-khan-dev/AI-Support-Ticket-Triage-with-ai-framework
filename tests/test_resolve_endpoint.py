@@ -191,6 +191,23 @@ def test_resolve_endpoint_provider_failure_returns_502():
         assert "api_key" not in detail.lower()
 
 
+def test_resolve_endpoint_unexpected_agent_error_returns_generic_500():
+    """An unexpected graph execution error uses the generic failure response."""
+    with patch('app.modules.agent.service.run_agent') as mock_run_agent:
+        mock_run_agent.return_value = _make_agent_result(
+            status="internal_error",
+            error="Agent service error.",
+        )
+        with _authenticated() as headers:
+            response = client.post(
+                "/api/v1/tickets/agent/run",
+                json={"message": "Hello."},
+                headers=headers,
+            )
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Agent service error."
+
+
 # ---------------------------------------------------------------------------
 # Iteration-limit outcome
 # ---------------------------------------------------------------------------

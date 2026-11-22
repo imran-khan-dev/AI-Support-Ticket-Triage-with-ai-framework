@@ -43,7 +43,8 @@ groq_client = get_groq_client(settings)
 logger = logging.getLogger("agent.service")
 
 PROVIDER_ERROR_MESSAGE = "Provider service is temporarily unavailable."
-EMPTY_RESPONSE_ERROR = "The model did not produce a final answer or a tool call."
+INTERNAL_ERROR_STATUS = "internal_error"
+INTERNAL_ERROR_MESSAGE = "Agent service error."
 
 
 @dataclass(frozen=True)
@@ -202,16 +203,21 @@ def _graph_result_to_agent_result(result, max_iterations: int) -> AgentResult:
         )
 
     if result.error:
+        logger.error(
+            "LangGraph agent returned an unexpected execution error: %s",
+            result.error,
+        )
         return AgentResult(
-            status="max_iterations_reached",
+            status=INTERNAL_ERROR_STATUS,
             tool_calls=tool_calls,
-            error=result.error,
+            error=INTERNAL_ERROR_MESSAGE,
         )
 
+    logger.error("LangGraph agent produced neither an answer nor an error.")
     return AgentResult(
-        status="max_iterations_reached",
+        status=INTERNAL_ERROR_STATUS,
         tool_calls=tool_calls,
-        error=EMPTY_RESPONSE_ERROR,
+        error=INTERNAL_ERROR_MESSAGE,
     )
 
 
@@ -266,9 +272,9 @@ def run_agent(
             "LangGraph agent execution failed: %s", type(exc).__name__
         )
         return AgentResult(
-            status="provider_failure",
+            status=INTERNAL_ERROR_STATUS,
             tool_calls=[],
-            error=PROVIDER_ERROR_MESSAGE,
+            error=INTERNAL_ERROR_MESSAGE,
         )
 
     return _graph_result_to_agent_result(graph_result, max_iterations)
