@@ -8,7 +8,7 @@ reusable AI components:
 | Component | Responsibility | Location |
 |-----------|---------------|----------|
 | **LlamaIndex retrieval** | Active knowledge ingestion, chunking, BM25/dense/hybrid retrieval, and reranking | `app/knowledge/` |
-| **LangGraph foundation** | Typed agent graph state, initialization node, compiled graph, and execution boundary | `app/agent_core/langgraph/` |
+| **LangGraph foundation** | Typed agent graph state, initialization and model nodes, Groq runner, and execution boundary | `app/agent_core/langgraph/` |
 | **Retrieval Stack (standalone)** | Legacy custom retrieval implementation retained for offline comparison | `Retrieval-Stack/` |
 | **Agent Orchestrator** | Provider-independent AgentLoop, tool execution, retries, tracing, hooks, execution limits | `Agent Orchestrator/` |
 | **Eval Harness** | Datasets, evaluators, experiment runner, metrics, regression checks, reports | `eval_harness/` |
@@ -31,9 +31,10 @@ Retrieval Stack is still present but is not imported by the application.
 
 The active agent endpoint still uses the existing custom orchestrator. The
 isolated LangGraph foundation in `app/agent_core/langgraph/` provides a typed
-graph state, an initialization node, a graph factory, a compiled graph, and a
-synchronous execution boundary. It is not wired into the endpoint yet and does
-not add checkpointing, tool routing, Groq invocation, or persistence.
+graph state, initialization and model-invocation nodes, a Groq model runner, a
+graph factory, a compiled graph, and a synchronous execution boundary. It is not
+wired into the endpoint yet and does not add checkpointing, tool routing, or
+persistence.
 
 ## Groq Provider Adapter
 
