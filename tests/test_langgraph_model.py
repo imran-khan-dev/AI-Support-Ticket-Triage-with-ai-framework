@@ -62,6 +62,35 @@ class _FakeGroqClient:
         self.responses = _FakeResponses()
 
 
+class _FakeToolCallItem:
+    type = "function_call"
+
+    def __init__(self):
+        self.call_id = "call_1"
+        self.name = "search_knowledge"
+        self.arguments = '{"query": "password reset"}'
+
+
+class _FakeToolResponse:
+    output = [_FakeToolCallItem()]
+    output_text = ""
+    finish_reason = "tool_calls"
+
+
+class _FakeToolResponses:
+    def __init__(self):
+        self.kwargs: dict[str, Any] | None = None
+
+    def create(self, **kwargs):
+        self.kwargs = kwargs
+        return _FakeToolResponse()
+
+
+class _FakeToolGroqClient:
+    def __init__(self):
+        self.responses = _FakeToolResponses()
+
+
 def _settings(**overrides):
     values = {
         "_env_file": None,
@@ -227,3 +256,32 @@ def test_build_groq_chat_model_requires_model(monkeypatch):
 
     with pytest.raises(ValueError, match="GROQ_MODEL"):
         build_groq_chat_model(_settings(groq_model=None))
+
+
+def test_groq_chat_model_runner_preserves_provider_tool_calls():
+    client = _FakeToolGroqClient()
+    runner = GroqChatModelRunner(client, "openai/gpt-oss-20b")
+    tools = [
+        {
+            "name": "search_knowledge",
+            "description": "Search knowledge",
+            "parameters_schema": {"type": "object", "properties": {}},
+        }
+    ]
+
+    response = runner.invoke([HumanMessage(content="Find password reset docs.")], tools=tools)
+
+    assert isinstance(response, AIMessage)
+    assert response.content == ""
+    assert response.tool_calls[0]["name"] == "search_knowledge"
+    assert response.tool_calls[0]["args"] == {"query": "password reset"}
+    assert response.tool_calls[0]["id"] == "call_1"
+    assert client.responses.kwargs is not None
+    assert client.responses.kwargs["tools"] == [
+        {
+            "type": "function",
+            "name": "search_knowledge",
+            "description": "Search knowledge",
+            "parameters": {"type": "object", "properties": {}},
+        }
+    ]

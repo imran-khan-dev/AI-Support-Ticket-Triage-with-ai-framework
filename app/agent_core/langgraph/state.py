@@ -13,15 +13,17 @@ class AgentGraphState(TypedDict, total=False):
     """Minimal execution state for the agent graph.
 
     ``messages`` uses LangGraph's ``add_messages`` reducer so message order and
-    message types are preserved as nodes append updates. Application-owned
-    session, history, memory, tenant, and approval state deliberately stay
-    outside this graph state.
+    message types are preserved as nodes append updates. ``iteration_count``
+    tracks model rounds for the graph's loop limit. Application-owned session,
+    history, memory, tenant, and approval state deliberately stay outside this
+    graph state.
     """
 
     input: str | None
     messages: Annotated[list[AnyMessage], add_messages]
     answer: str | None
     error: str | None
+    iteration_count: int
 
 
 @dataclass(frozen=True)

@@ -25,8 +25,17 @@ class ChatModelProviderError(RuntimeError):
 class ChatModelRunner(Protocol):
     """Minimal model invocation contract used by the graph node."""
 
-    def invoke(self, messages: Sequence[BaseMessage]) -> AIMessage:
-        """Invoke the model and return an assistant message."""
+    def invoke(
+        self,
+        messages: Sequence[BaseMessage],
+        tools: Sequence[Any] | None = None,
+    ) -> AIMessage:
+        """Invoke the model and return an assistant message.
+
+        ``tools`` contains the application-owned tool definitions that should be
+        advertised for this request. Implementations may ignore it when no tools
+        are available.
+        """
 
 
 def _to_provider_message(message: BaseMessage | dict[str, Any]) -> dict[str, Any]:
@@ -77,16 +86,31 @@ class GroqChatModelRunner:
     def __init__(self, client: OpenAI, model_name: str):
         self._adapter = GroqLLMProviderAdapter(client, model_name)
 
-    def invoke(self, messages: Sequence[BaseMessage]) -> AIMessage:
+    def invoke(
+        self,
+        messages: Sequence[BaseMessage],
+        tools: Sequence[Any] | None = None,
+    ) -> AIMessage:
         provider_messages = [_to_provider_message(message) for message in messages]
         try:
             response = self._adapter.complete(
-                ProviderRequest(messages=provider_messages),
+                ProviderRequest(
+                    messages=provider_messages,
+                    tools=list(tools) if tools else None,
+                ),
             )
         except ProviderError:
             raise ChatModelProviderError("Groq provider request failed.") from None
 
-        return AIMessage(content=response.content or "")
+        tool_calls = [
+            {
+                "name": tool_call.name,
+                "args": tool_call.arguments,
+                "id": tool_call.id,
+            }
+            for tool_call in response.tool_calls
+        ]
+        return AIMessage(content=response.content or "", tool_calls=tool_calls)
 
 
 def build_groq_chat_model(settings: Settings) -> GroqChatModelRunner:
