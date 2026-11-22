@@ -10,7 +10,12 @@ from langgraph.graph import END
 
 from app.agent_core.langgraph.model import ChatModelProviderError, ChatModelRunner
 from app.agent_core.langgraph.state import AgentGraphState
-from app.agent_core.langgraph.tools import execute_tool_calls
+from app.agent_core.langgraph.tools import (
+    DEFAULT_MAX_TOOL_CALLS,
+    MALFORMED_TOOL_CALL_IDS_ERROR,
+    MalformedToolCallIdsError,
+    execute_tool_calls,
+)
 
 EMPTY_INPUT_ERROR = "A non-empty message is required."
 EMPTY_RESPONSE_ERROR = "The model did not produce a final answer."
@@ -162,8 +167,16 @@ def build_call_model_node(
 
 def build_execute_tools_node(
     tool_executor: Any,
+    max_tool_calls: int = DEFAULT_MAX_TOOL_CALLS,
 ) -> Callable[[AgentGraphState], dict[str, Any]]:
-    """Build the node that executes the previous assistant message's tools."""
+    """Build the node that executes the previous assistant message's tools.
+
+    The budget is stored in graph state so it is shared across model/tool cycles
+    but isolated between independent graph invocations.
+    """
+    from app.agent_core.langgraph.tools import _validate_max_tool_calls
+
+    _validate_max_tool_calls(max_tool_calls)
 
     def execute_tools(state: AgentGraphState) -> dict[str, Any]:
         if state.get("error"):
@@ -177,10 +190,26 @@ def build_execute_tools_node(
         if not tool_calls:
             return {"answer": None, "error": NO_TOOL_CALLS_ERROR}
 
+        used_tool_calls = int(state.get("tool_call_count") or 0)
+        try:
+            tool_messages = execute_tool_calls(
+                tool_calls,
+                tool_executor,
+                max_tool_calls=max_tool_calls,
+                used_tool_calls=used_tool_calls,
+            )
+        except MalformedToolCallIdsError:
+            return {
+                "messages": [],
+                "answer": None,
+                "error": MALFORMED_TOOL_CALL_IDS_ERROR,
+            }
+
         return {
-            "messages": execute_tool_calls(tool_calls, tool_executor),
+            "messages": tool_messages,
             "answer": None,
             "error": None,
+            "tool_call_count": used_tool_calls + len(tool_calls),
         }
 
     return execute_tools

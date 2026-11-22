@@ -18,7 +18,9 @@ from app.agent_core.langgraph.nodes import (
 )
 from app.agent_core.langgraph.state import AgentGraphState
 from app.agent_core.langgraph.tools import (
+    DEFAULT_MAX_TOOL_CALLS,
     ToolRuntime,
+    _validate_max_tool_calls,
     build_application_tool_runtime,
 )
 from app.core.config import Settings
@@ -76,6 +78,7 @@ def build_agent_graph(
     tool_executor: Any | None = None,
     tool_definitions: Sequence[Any] | None = None,
     max_iterations: int = MAX_ITERATIONS,
+    max_tool_calls: int | None = None,
 ) -> StateGraph:
     """Build the agent graph.
 
@@ -86,14 +89,21 @@ def build_agent_graph(
     ``START -> initialize_messages -> call_model -> execute_tools -> call_model``
     with a conditional edge from ``call_model`` to ``execute_tools`` or ``END``.
 
-    The model runner and tool executor are injected at construction time so
-    tests can supply deterministic fakes and production can supply Groq-backed
-    runners and application-owned tools without global mutable state.
+    ``max_tool_calls`` is the per-invocation tool budget. It defaults to 20,
+    or to the value carried by a supplied :class:`ToolRuntime`.
     """
     graph = StateGraph(AgentGraphState)
     tool_executor, tool_definitions = _resolve_tools(
         tools, tool_executor, tool_definitions
     )
+    if max_tool_calls is None:
+        if isinstance(tools, ToolRuntime):
+            max_tool_calls = tools.max_tool_calls
+        elif tools is not None and hasattr(tools, "max_tool_calls"):
+            max_tool_calls = tools.max_tool_calls
+        else:
+            max_tool_calls = DEFAULT_MAX_TOOL_CALLS
+    _validate_max_tool_calls(max_tool_calls)
     graph.add_node("initialize_messages", initialize_messages)
     graph.add_node(
         "call_model",
@@ -110,7 +120,13 @@ def build_agent_graph(
     if tool_executor is None:
         graph.add_edge("call_model", END)
     else:
-        graph.add_node("execute_tools", build_execute_tools_node(tool_executor))
+        graph.add_node(
+            "execute_tools",
+            build_execute_tools_node(
+                tool_executor,
+                max_tool_calls=max_tool_calls,
+            ),
+        )
         graph.add_conditional_edges(
             "call_model",
             route_after_model,
@@ -131,6 +147,7 @@ def compile_agent_graph(
     tool_executor: Any | None = None,
     tool_definitions: Sequence[Any] | None = None,
     max_iterations: int = MAX_ITERATIONS,
+    max_tool_calls: int | None = None,
 ) -> CompiledStateGraph:
     """Compile the agent graph without checkpointing."""
     return build_agent_graph(
@@ -139,6 +156,7 @@ def compile_agent_graph(
         tool_executor=tool_executor,
         tool_definitions=tool_definitions,
         max_iterations=max_iterations,
+        max_tool_calls=max_tool_calls,
     ).compile()
 
 
@@ -150,19 +168,25 @@ def build_groq_agent_graph(
     db: Any = None,
     is_approved: bool = False,
     max_iterations: int = MAX_ITERATIONS,
+    max_tool_calls: int | None = None,
     tool_executor: Any | None = None,
     tool_definitions: Sequence[Any] | None = None,
+    config: Any = None,
 ) -> CompiledStateGraph:
     """Build a graph backed by the configured Groq model.
 
     When trusted tenant context is supplied and no explicit tool runtime is
     given, the application-owned tool registry is built and bound to that
-    context. Approval state is also trusted application context.
+    context. Approval state is also trusted application context. The tool budget
+    comes from ``max_tool_calls``, then ``config.max_tool_calls``, then a
+    ``ToolRuntime`` value, then the default of 20.
     """
     if tools is not None:
         tool_executor, tool_definitions = _resolve_tools(
             tools, tool_executor, tool_definitions
         )
+        if max_tool_calls is None:
+            max_tool_calls = getattr(tools, "max_tool_calls", None)
     elif tool_executor is None and (
         tenant_id is not None or db is not None or is_approved
     ):
@@ -170,16 +194,23 @@ def build_groq_agent_graph(
             tenant_id=tenant_id,
             db=db,
             is_approved=is_approved,
+            config=config,
         )
         tool_executor = runtime.executor
         if tool_definitions is None:
             tool_definitions = runtime.definitions
+        if max_tool_calls is None:
+            max_tool_calls = runtime.max_tool_calls
+
+    if max_tool_calls is None:
+        max_tool_calls = getattr(config, "max_tool_calls", DEFAULT_MAX_TOOL_CALLS)
 
     return compile_agent_graph(
         build_groq_chat_model(settings),
         tool_executor=tool_executor,
         tool_definitions=tool_definitions,
         max_iterations=max_iterations,
+        max_tool_calls=max_tool_calls,
     )
 
 
