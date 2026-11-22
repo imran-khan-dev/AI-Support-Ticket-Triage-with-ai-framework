@@ -10,15 +10,21 @@ import hashlib
 import os
 import re
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
 from llama_index.core.base.embeddings.base import BaseEmbedding
+from llama_index.core.indices.vector_store import VectorIndexRetriever
+from llama_index.core.llms import MockLLM
 from llama_index.core.postprocessor.types import BaseNodePostprocessor
+from llama_index.core.retrievers import QueryFusionRetriever
+from llama_index.core.retrievers.fusion_retriever import FUSION_MODES
 from llama_index.core.schema import NodeWithScore, QueryBundle
 
 from app.database import get_database
 from app.database.repository import _canonical_uuid
+from app.knowledge.llamaindex import FilteredBM25Retriever
 from app.knowledge.service import IngestionError, KnowledgeService
 from app.modules.integrations.service import issue_integration_credential
 
@@ -294,3 +300,190 @@ def test_hybrid_results_are_sorted_and_typed():
         (result.score for result in results),
         reverse=True,
     )
+
+
+def test_hybrid_retriever_configuration_uses_rrf_without_query_generation():
+    db = get_database(os.environ["DATABASE_URL"])
+    tenant_id = _new_tenant(db)
+    service = _service(db)
+
+    _ingest(service, tenant_id, "billing refund policy five days", "billing.txt")
+    hybrid = service._get_hybrid_retriever(tenant_id, 3)
+
+    assert isinstance(hybrid, QueryFusionRetriever)
+    assert hybrid.mode is FUSION_MODES.RECIPROCAL_RANK
+    assert hybrid.num_queries == 1
+    assert hybrid.similarity_top_k == 3
+    assert len(hybrid._retrievers) == 2
+
+
+def test_hybrid_executes_both_retrievers_without_calling_query_generation_llm(monkeypatch):
+    db = get_database(os.environ["DATABASE_URL"])
+    tenant_id = _new_tenant(db)
+    service = _service(db)
+
+    _ingest(service, tenant_id, "billing refund policy five days", "billing.txt")
+
+    calls: list[str] = []
+    original_bm25_retrieve = FilteredBM25Retriever.retrieve
+    original_dense_retrieve = VectorIndexRetriever.retrieve
+
+    def bm25_retrieve(self, query):
+        calls.append("bm25")
+        return original_bm25_retrieve(self, query)
+
+    def dense_retrieve(self, query):
+        calls.append("dense")
+        return original_dense_retrieve(self, query)
+
+    monkeypatch.setattr(FilteredBM25Retriever, "retrieve", bm25_retrieve)
+    monkeypatch.setattr(VectorIndexRetriever, "retrieve", dense_retrieve)
+
+    def fail_llm(*args, **kwargs):
+        raise AssertionError("hybrid retrieval must not call a query-generation LLM")
+
+    monkeypatch.setattr(MockLLM, "complete", fail_llm)
+    monkeypatch.setattr(MockLLM, "acomplete", fail_llm)
+
+    results = service.search_hybrid(tenant_id, "billing refund", top_k=5)
+
+    assert results
+    assert calls.count("bm25") == 1
+    assert calls.count("dense") == 1
+
+
+def test_hybrid_applies_reciprocal_rank_fusion_and_deduplicates():
+    db = get_database(os.environ["DATABASE_URL"])
+    tenant_id = _new_tenant(db)
+    service = _service(db)
+
+    _ingest(service, tenant_id, "billing refund policy five days", "billing.txt")
+
+    bm25_results = service.search(tenant_id, "billing refund", top_k=5)
+    dense_results = service.search_dense(tenant_id, "billing refund", top_k=5)
+    hybrid_results = service.search_hybrid(tenant_id, "billing refund", top_k=5)
+
+    assert len(bm25_results) == 1
+    assert len(dense_results) == 1
+    assert len(hybrid_results) == 1
+    assert bm25_results[0].chunk.id == dense_results[0].chunk.id
+    assert hybrid_results[0].chunk.id == bm25_results[0].chunk.id
+    assert hybrid_results[0].score == pytest.approx(2.0 / 60.0)
+
+
+def test_hybrid_single_source_reciprocal_rank_score():
+    db = get_database(os.environ["DATABASE_URL"])
+    tenant_id = _new_tenant(db)
+    service = _service(db)
+
+    _ingest(service, tenant_id, "billing refund policy five days", "billing.txt")
+    results = service.search_hybrid(tenant_id, "xyz123nonexistent", top_k=5)
+
+    assert len(results) == 1
+    assert results[0].score == pytest.approx(1.0 / 60.0)
+
+
+def test_tenant_nodes_and_vector_indexes_are_cached_and_reused():
+    db = get_database(os.environ["DATABASE_URL"])
+    tenant_a = _new_tenant(db)
+    tenant_b = _new_tenant(db)
+    service = _service(db)
+
+    _ingest(service, tenant_a, "Tenant A confidential billing data", "a.txt")
+    _ingest(service, tenant_b, "Tenant B confidential shipping data", "b.txt")
+
+    service.search(tenant_a, "confidential", top_k=5)
+    nodes_a = service._nodes[tenant_a]
+    service.search(tenant_a, "confidential", top_k=5)
+    assert service._nodes[tenant_a] is nodes_a
+
+    service.search_dense(tenant_b, "confidential", top_k=5)
+    index_b = service._vector_indexes[tenant_b]
+    service.search_dense(tenant_b, "confidential", top_k=5)
+    assert service._vector_indexes[tenant_b] is index_b
+
+    node_ids_a = {node.node_id for node in nodes_a}
+    node_ids_b = {node.node_id for node in service._nodes[tenant_b]}
+    assert node_ids_a.isdisjoint(node_ids_b)
+
+
+def test_ingestion_invalidates_tenant_caches_and_rebuilds_them():
+    db = get_database(os.environ["DATABASE_URL"])
+    tenant_id = _new_tenant(db)
+    service = _service(db)
+
+    _ingest(service, tenant_id, "billing refunds", "billing.txt")
+    service.search(tenant_id, "billing", top_k=5)
+    service.search_dense(tenant_id, "billing", top_k=5)
+    old_nodes = service._nodes[tenant_id]
+    old_index = service._vector_indexes[tenant_id]
+
+    _ingest(service, tenant_id, "shipping refunds", "shipping.txt")
+
+    assert tenant_id not in service._nodes
+    assert tenant_id not in service._vector_indexes
+
+    results = service.search(tenant_id, "shipping", top_k=5)
+    assert results
+    assert service._nodes[tenant_id] is not old_nodes
+
+    service.search_dense(tenant_id, "shipping", top_k=5)
+    assert service._vector_indexes[tenant_id] is not old_index
+
+
+def test_deletion_invalidates_tenant_caches_and_removes_stale_nodes():
+    db = get_database(os.environ["DATABASE_URL"])
+    tenant_id = _new_tenant(db)
+    service = _service(db)
+
+    result = _ingest(service, tenant_id, "billing refunds", "billing.txt")
+    service.search(tenant_id, "billing", top_k=5)
+    service.search_dense(tenant_id, "billing", top_k=5)
+    stale_node_ids = {node.node_id for node in service._nodes[tenant_id]}
+    assert stale_node_ids
+
+    assert service.delete_document(tenant_id, result.document.id) is True
+
+    assert tenant_id not in service._nodes
+    assert tenant_id not in service._vector_indexes
+    rebuilt_nodes = service._get_nodes(tenant_id)
+    assert rebuilt_nodes == []
+    assert stale_node_ids.isdisjoint({node.node_id for node in rebuilt_nodes})
+
+
+def test_new_service_reconstructs_indexes_from_postgres():
+    db = get_database(os.environ["DATABASE_URL"])
+    tenant_id = _new_tenant(db)
+    first_service = _service(db)
+    _ingest(first_service, tenant_id, "billing refunds within five days", "billing.txt")
+
+    restarted_service = _service(db)
+
+    assert restarted_service.search(tenant_id, "billing", top_k=5)
+    assert restarted_service.search_dense(tenant_id, "billing", top_k=5)
+    assert restarted_service.search_hybrid(tenant_id, "billing", top_k=5)
+
+
+def test_concurrent_tenant_searches_do_not_cross_contaminate():
+    db = get_database(os.environ["DATABASE_URL"])
+    tenant_a = _new_tenant(db)
+    tenant_b = _new_tenant(db)
+    service = _service(db)
+
+    _ingest(service, tenant_a, "Tenant A confidential billing data", "a.txt")
+    _ingest(service, tenant_b, "Tenant B confidential shipping data", "b.txt")
+
+    def search(tenant_id: str):
+        return service.search_hybrid(tenant_id, "confidential", top_k=5)
+
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = [
+            executor.submit(search, tenant_a if index % 2 == 0 else tenant_b)
+            for index in range(24)
+        ]
+        results = [future.result() for future in futures]
+
+    for index, result in enumerate(results):
+        expected = "tenant a" if index % 2 == 0 else "tenant b"
+        assert len(result) == 1
+        assert expected in result[0].chunk.content.lower()
