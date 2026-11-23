@@ -28,9 +28,6 @@ from typing import Any
 
 from openai import OpenAI
 
-from agent_orchestrator.config import OrchestratorConfig
-from agent_orchestrator.core.loop import AgentLoop
-from agent_orchestrator.core.models import ExecutionStatus
 from app.core.config import Settings
 from app.agent_core.tool_schemas import strip_titles
 
@@ -178,6 +175,10 @@ def run_agent(
     Returns:
         AgentResult with status, answer, tool_calls, and optional error.
     """
+    from agent_orchestrator.config import OrchestratorConfig
+    from agent_orchestrator.core.loop import AgentLoop
+    from agent_orchestrator.core.models import ExecutionStatus
+
     # Mock mode: no API key configured.
     if client is None:
         return AgentResult(
