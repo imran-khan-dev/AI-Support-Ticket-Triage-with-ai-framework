@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+import warnings
 from typing import Any
 
 from .ragas_adapter import RagasSample, records_to_samples, sample_to_ragas_dict
@@ -15,15 +16,29 @@ METRIC_FACTORIES = {}
 
 def _load_metric(metric_name: str):
     try:
-        if metric_name == "exact_match":
-            from ragas.metrics.collections import ExactMatch
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            if metric_name == "exact_match":
+                from ragas.metrics import ExactMatch
 
-            return ExactMatch()
-        if metric_name == "answer_relevancy":
-            from ragas.metrics.collections import AnswerRelevancy
+                return ExactMatch()
+            if metric_name == "bleu_score":
+                from ragas.metrics import BleuScore
 
-            return AnswerRelevancy()
-        raise RagasEvaluationError(f"unsupported metric: {metric_name}")
+                return BleuScore()
+            if metric_name == "rouge_score":
+                from ragas.metrics import RougeScore
+
+                return RougeScore()
+            if metric_name == "string_presence":
+                from ragas.metrics import StringPresence
+
+                return StringPresence()
+            if metric_name == "topic_adherence":
+                from ragas.metrics import TopicAdherence
+
+                return TopicAdherence()
+            raise RagasEvaluationError(f"unsupported metric: {metric_name}")
     except RagasEvaluationError:
         raise
     except Exception as exc:  # pragma: no cover
@@ -43,6 +58,7 @@ def run_ragas_evaluation(
         raise RagasEvaluationError("at least one metric is required")
     try:
         from ragas import EvaluationDataset, evaluate
+        from ragas.metrics.base import Metric
     except Exception as exc:  # pragma: no cover
         raise RagasEvaluationError(str(exc)) from exc
 
@@ -52,6 +68,9 @@ def run_ragas_evaluation(
     ragas_samples = [sample_to_ragas_dict(s) for s in samples]
     dataset = EvaluationDataset.from_list(ragas_samples)
     metrics = [_load_metric(m) for m in metric_names]
+    for metric in metrics:
+        if not isinstance(metric, Metric):
+            raise RagasEvaluationError(f"metric {metric!r} is not a valid Ragas metric")
     kwargs: dict[str, Any] = {}
     if llm is not None:
         kwargs["llm"] = llm
