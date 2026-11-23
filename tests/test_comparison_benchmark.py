@@ -1,13 +1,14 @@
 """Tests for the retrieval benchmark runner (app/comparison/retrieval_benchmark.py).
 
 The custom adapter is exercised for real (in-memory BM25, no external services).
-The framework adapter path is validated for argument handling and error
-propagation without requiring llama_index or PostgreSQL.
+The framework adapter is exercised for real against PostgreSQL via KnowledgeService.
+Side-by-side benchmark tests compare both implementations on the same dataset.
 """
 
 from __future__ import annotations
 
 from dataclasses import asdict
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
@@ -20,6 +21,9 @@ from app.comparison.retrieval_benchmark import (
     run_retrieval_benchmark,
 )
 from app.comparison.contracts import Implementation
+from retrieval_eval.dataset import load_dataset
+
+DATASET_PATH = Path(__file__).resolve().parent.parent / "retrieval_eval" / "data" / "support_eval_dataset.json"
 
 
 class _MockChunk:
@@ -191,3 +195,131 @@ class TestRunRetrievalBenchmarkFramework:
             assert pq.recall_at_k[5] == 0.0
             assert pq.reciprocal_rank == 0.0
             assert pq.ndcg_at_k[5] == 0.0
+
+
+# ---------------------------------------------------------------------------
+# Side-by-side benchmark (real custom + real framework, shared dataset)
+# ---------------------------------------------------------------------------
+
+class TestSideBySideBenchmark:
+    """Both implementations run on the same dataset, queries, and judgments."""
+
+    @staticmethod
+    def _dataset_like(ds) -> SimpleNamespace:
+        """Wrap a RetrievalEvalDataset into the duck-typed object expected by
+        run_retrieval_benchmark."""
+        return SimpleNamespace(
+            name=ds.name,
+            tenant_id=ds.tenant_id,
+            documents=ds.documents,
+            queries=ds.queries,
+        )
+
+    def test_side_by_side_benchmark_runs_both_implementations(self, clean_database):
+        db = clean_database
+        dataset = load_dataset(DATASET_PATH)
+        wrapped = self._dataset_like(dataset)
+
+        custom_result = run_retrieval_benchmark(wrapped, Implementation.custom, top_k=5)
+        fw_result = run_retrieval_benchmark(
+            wrapped, Implementation.framework, top_k=5, db=db,
+            tenant_id=dataset.tenant_id,
+        )
+
+        # Both complete all 6 queries.
+        assert custom_result.status == "completed"
+        assert fw_result.status == "completed"
+        assert custom_result.num_queries == 6
+        assert fw_result.num_queries == 6
+        assert custom_result.aggregate["num_completed"] == 6
+        assert fw_result.aggregate["num_completed"] == 6
+
+        # Aggregate metrics exist for both.
+        for agg in (custom_result.aggregate, fw_result.aggregate):
+            assert agg["precision_at_k"][5] is not None
+            assert agg["recall_at_k"][5] is not None
+            assert agg["mrr"] is not None
+            assert agg["ndcg_at_k"][5] is not None
+
+        # Per-query results align by query_id.
+        custom_by_id = {pq.query_id: pq for pq in custom_result.per_query}
+        fw_by_id = {pq.query_id: pq for pq in fw_result.per_query}
+        assert set(custom_by_id) == set(fw_by_id) == {"q1", "q2", "q3", "q4", "q5", "q6"}
+
+        for qid in custom_by_id:
+            cq = custom_by_id[qid]
+            fq = fw_by_id[qid]
+            assert cq.query_text == fq.query_text
+            assert cq.status == "completed"
+            assert fq.status == "completed"
+            # Same relevance judgments used for both.
+            assert set(cq.precision_at_k) == {5}
+            assert set(fq.precision_at_k) == {5}
+
+    def test_side_by_side_results_are_relevant(self, clean_database):
+        db = clean_database
+        dataset = load_dataset(DATASET_PATH)
+        wrapped = self._dataset_like(dataset)
+
+        custom_result = run_retrieval_benchmark(wrapped, Implementation.custom, top_k=5)
+        fw_result = run_retrieval_benchmark(
+            wrapped, Implementation.framework, top_k=5, db=db,
+            tenant_id=dataset.tenant_id,
+        )
+
+        # Framework BM25 should outperform or match custom on q3 (stemming).
+        c_q3 = [p for p in custom_result.per_query if p.query_id == "q3"][0]
+        f_q3 = [p for p in fw_result.per_query if p.query_id == "q3"][0]
+        assert f_q3.recall_at_k[5] > c_q3.recall_at_k[5]  # fw finds C5/C6 via stemming
+
+        # On other queries, both retrieve relevant chunks.
+        for qid in ("q1", "q2", "q4", "q5", "q6"):
+            cq = [p for p in custom_result.per_query if p.query_id == qid][0]
+            fq = [p for p in fw_result.per_query if p.query_id == qid][0]
+            assert cq.recall_at_k[5] > 0, f"custom {qid} should recall relevant chunks"
+            assert fq.recall_at_k[5] > 0, f"framework {qid} should recall relevant chunks"
+
+    def test_side_by_side_aggregate_comparison(self, clean_database):
+        db = clean_database
+        dataset = load_dataset(DATASET_PATH)
+        wrapped = self._dataset_like(dataset)
+
+        custom_result = run_retrieval_benchmark(wrapped, Implementation.custom, top_k=5)
+        fw_result = run_retrieval_benchmark(
+            wrapped, Implementation.framework, top_k=5, db=db,
+            tenant_id=dataset.tenant_id,
+        )
+
+        ca = custom_result.aggregate
+        fa = fw_result.aggregate
+
+        # Record the actual values for the report.
+        assert ca["precision_at_k"][5] == pytest.approx(0.3333, abs=1e-4)
+        assert ca["recall_at_k"][5] == pytest.approx(0.75, abs=1e-4)
+        assert ca["mrr"] == pytest.approx(0.8333, abs=1e-4)
+        assert ca["ndcg_at_k"][5] == pytest.approx(0.8167, abs=1e-4)
+
+        assert fa["precision_at_k"][5] == pytest.approx(0.4, abs=1e-4)
+        assert fa["recall_at_k"][5] == pytest.approx(0.9167, abs=1e-4)
+        assert fa["mrr"] == pytest.approx(1.0, abs=1e-4)
+        assert fa["ndcg_at_k"][5] == pytest.approx(0.9862, abs=1e-4)
+
+        # No raw score comparison: only relevance-based metrics.
+        assert "score" not in ca and "score" not in fa
+
+    def test_side_by_side_deterministic_repeat(self, clean_database):
+        db = clean_database
+        dataset = load_dataset(DATASET_PATH)
+        wrapped = self._dataset_like(dataset)
+
+        r1 = run_retrieval_benchmark(wrapped, Implementation.custom, top_k=5)
+        r2 = run_retrieval_benchmark(wrapped, Implementation.custom, top_k=5)
+        assert [p.retrieved_chunk_ids for p in r1.per_query] == \
+               [p.retrieved_chunk_ids for p in r2.per_query]
+
+        s1 = run_retrieval_benchmark(wrapped, Implementation.framework, top_k=5, db=db,
+                                     tenant_id=dataset.tenant_id)
+        s2 = run_retrieval_benchmark(wrapped, Implementation.framework, top_k=5, db=db,
+                                     tenant_id=dataset.tenant_id)
+        assert [p.retrieved_chunk_ids for p in s1.per_query] == \
+               [p.retrieved_chunk_ids for p in s2.per_query]

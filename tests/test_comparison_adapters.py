@@ -1,13 +1,14 @@
 """Tests for the custom and framework retrieval adapters.
 
 The custom adapter is exercised against the real Retrieval Stack (in-memory
-BM25, no external services). The framework adapter requires llama_index and a
-PostgreSQL database, which are not installed in this environment, so its
-identifier-mapping and hit-normalization logic is tested with mocks instead.
+BM25, no external services). The framework adapter is exercised against a real
+PostgreSQL database through KnowledgeService (LlamaIndex BM25). When a
+database is unavailable, its identifier-mapping logic is tested with mocks.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
@@ -19,6 +20,9 @@ from app.comparison.retrieval_adapters import (
     RetrievalHit,
     RetrievalRequest,
 )
+from retrieval_eval.dataset import load_dataset
+
+DATASET_PATH = Path(__file__).resolve().parent.parent / "retrieval_eval" / "data" / "support_eval_dataset.json"
 
 
 # ---------------------------------------------------------------------------
@@ -213,3 +217,134 @@ class TestFrameworkBM25RetrievalAdapterMapping:
 
     def test_implementation_property(self):
         assert FrameworkBM25RetrievalAdapter.implementation == "framework"
+
+
+# ---------------------------------------------------------------------------
+# Framework adapter integration (real PostgreSQL + KnowledgeService)
+# ---------------------------------------------------------------------------
+
+class TestFrameworkBM25RetrievalAdapterIntegration:
+    """Real framework adapter executed against PostgreSQL via KnowledgeService."""
+
+    @staticmethod
+    def _build_adapter_documents(dataset) -> list[dict]:
+        documents = []
+        for doc in dataset.documents:
+            documents.append(
+                {
+                    "filename": doc.filename,
+                    "content_type": doc.content_type,
+                    "content": doc.content,
+                    "chunks": [
+                        {
+                            "logical_id": c.logical_id,
+                            "chunk_index": c.chunk_index,
+                            "content": c.content,
+                            "metadata": dict(c.metadata),
+                        }
+                        for c in doc.chunks
+                    ],
+                }
+            )
+        return documents
+
+    def test_adapter_ingests_and_searches_real_db(self, clean_database):
+        db = clean_database
+        dataset = load_dataset(DATASET_PATH)
+        adapter = FrameworkBM25RetrievalAdapter(
+            db=db,
+            tenant_id=dataset.tenant_id,
+            documents=self._build_adapter_documents(dataset),
+        )
+        assert adapter.implementation == "framework"
+
+        # All 10 logical chunk IDs should be mapped.
+        assert len(adapter._logical_to_actual) == 10
+        assert len(adapter._actual_to_logical) == 10
+        # Round-trip mapping is stable.
+        for logical_id, actual_id in adapter._logical_to_actual.items():
+            assert adapter._actual_to_logical[actual_id] == logical_id
+
+        # Search for q1: should return C1, C2, C10 (all relevant).
+        hits = adapter.search(RetrievalRequest(query="How do I reset my password?", top_k=5))
+        assert len(hits) == 3
+        assert [h.chunk_id for h in hits] == ["C1", "C2", "C10"]
+        assert all(h.score is not None and h.score > 0 for h in hits)
+        # Ranking order is preserved (descending score).
+        assert hits[0].score >= hits[1].score >= hits[2].score
+
+    def test_adapter_respects_top_k(self, clean_database):
+        db = clean_database
+        dataset = load_dataset(DATASET_PATH)
+        adapter = FrameworkBM25RetrievalAdapter(
+            db=db,
+            tenant_id=dataset.tenant_id,
+            documents=self._build_adapter_documents(dataset),
+        )
+
+        hits = adapter.search(RetrievalRequest(query="password reset", top_k=2))
+        assert len(hits) == 2
+
+        hits = adapter.search(RetrievalRequest(query="password reset", top_k=10))
+        assert len(hits) <= 10
+
+    def test_adapter_skips_unknown_stored_ids(self, clean_database, monkeypatch):
+        db = clean_database
+        dataset = load_dataset(DATASET_PATH)
+        adapter = FrameworkBM25RetrievalAdapter(
+            db=db,
+            tenant_id=dataset.tenant_id,
+            documents=self._build_adapter_documents(dataset),
+        )
+
+        # Inject a fake result with a chunk id not in the mapping.
+        fake_chunk = SimpleNamespace(id="unknown-uuid", document_id="D9", content="orphan")
+        fake_result = SimpleNamespace(chunk=fake_chunk, score=0.99)
+
+        with patch.object(adapter.service, "search", return_value=[fake_result]):
+            hits = adapter.search(RetrievalRequest(query="anything", top_k=5))
+        assert hits == []
+
+    def test_adapter_tenant_isolation(self, clean_database):
+        """Chunks ingested for one tenant are not visible to another."""
+        db = clean_database
+        dataset = load_dataset(DATASET_PATH)
+
+        adapter_a = FrameworkBM25RetrievalAdapter(
+            db=db,
+            tenant_id="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            documents=self._build_adapter_documents(dataset),
+        )
+        hits_a = adapter_a.search(RetrievalRequest(query="password reset", top_k=5))
+        assert len(hits_a) > 0
+
+        # A different tenant with no documents should get no results.
+        adapter_b = FrameworkBM25RetrievalAdapter(
+            db=db,
+            tenant_id="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            documents=[],
+        )
+        hits_b = adapter_b.search(RetrievalRequest(query="password reset", top_k=5))
+        assert hits_b == []
+
+    def test_adapter_repeated_runs_no_duplicates(self, clean_database):
+        db = clean_database
+        dataset = load_dataset(DATASET_PATH)
+
+        adapter = FrameworkBM25RetrievalAdapter(
+            db=db,
+            tenant_id=dataset.tenant_id,
+            documents=self._build_adapter_documents(dataset),
+        )
+        hits1 = adapter.search(RetrievalRequest(query="password reset", top_k=5))
+
+        # Re-run setup (re-ingest) - should not duplicate chunks.
+        # Invalidate the service cache so a fresh KnowledgeService loads the
+        # re-ingested chunks from the database.
+        adapter._service = None
+        adapter._setup(db, self._build_adapter_documents(dataset))
+        hits2 = adapter.search(RetrievalRequest(query="password reset", top_k=5))
+
+        assert [h.chunk_id for h in hits1] == [h.chunk_id for h in hits2]
+        # Logical-to-actual mapping should still have exactly 10 entries.
+        assert len(adapter._logical_to_actual) == 10

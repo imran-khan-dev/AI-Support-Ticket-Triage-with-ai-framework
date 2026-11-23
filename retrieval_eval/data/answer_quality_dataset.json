@@ -1,0 +1,173 @@
+{
+  "name": "support-kb-answer-quality-eval",
+  "version": "1.0.0",
+  "description": "Answer-quality and faithfulness evaluation dataset. Reference answers are manually authored. Do not generate reference answers using the model being evaluated.",
+  "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  "documents": [
+    {
+      "id": "D1",
+      "filename": "password_reset.txt",
+      "content_type": "text/plain",
+      "content": "To reset your password, go to account settings and click 'Forgot password'. A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+      "chunks": [
+        {
+          "logical_id": "C1",
+          "chunk_index": 0,
+          "content": "To reset your password, go to account settings and click 'Forgot password'.",
+          "metadata": {"section": "account", "topic": "password"}
+        },
+        {
+          "logical_id": "C2",
+          "chunk_index": 1,
+          "content": "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "metadata": {"section": "email", "topic": "password"}
+        }
+      ]
+    },
+    {
+      "id": "D2",
+      "filename": "billing_refunds.txt",
+      "content_type": "text/plain",
+      "content": "Billing refunds are processed within 5 business days for eligible charges. Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+      "chunks": [
+        {
+          "logical_id": "C3",
+          "chunk_index": 0,
+          "content": "Billing refunds are processed within 5 business days for eligible charges.",
+          "metadata": {"section": "billing", "topic": "refunds"}
+        },
+        {
+          "logical_id": "C4",
+          "chunk_index": 1,
+          "content": "Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+          "metadata": {"section": "billing", "topic": "refunds"}
+        }
+      ]
+    },
+    {
+      "id": "D3",
+      "filename": "shipping_policy.txt",
+      "content_type": "text/plain",
+      "content": "Orders ship within 24 hours and tracking information is provided via email. Shipping is free for orders over $50. International shipping may take additional time.",
+      "chunks": [
+        {
+          "logical_id": "C5",
+          "chunk_index": 0,
+          "content": "Orders ship within 24 hours and tracking information is provided via email.",
+          "metadata": {"section": "shipping", "topic": "orders"}
+        },
+        {
+          "logical_id": "C6",
+          "chunk_index": 1,
+          "content": "Shipping is free for orders over $50. International shipping may take additional time.",
+          "metadata": {"section": "shipping", "topic": "orders"}
+        }
+      ]
+    },
+    {
+      "id": "D4",
+      "filename": "api_access.txt",
+      "content_type": "text/plain",
+      "content": "API access requires authentication with an API key. Rate limits are applied per API key to prevent abuse. You can view your rate limit usage in the developer dashboard.",
+      "chunks": [
+        {
+          "logical_id": "C7",
+          "chunk_index": 0,
+          "content": "API access requires authentication with an API key. Rate limits are applied per API key to prevent abuse.",
+          "metadata": {"section": "api", "topic": "authentication"}
+        },
+        {
+          "logical_id": "C8",
+          "chunk_index": 1,
+          "content": "You can view your rate limit usage in the developer dashboard.",
+          "metadata": {"section": "api", "topic": "dashboard"}
+        }
+      ]
+    },
+    {
+      "id": "D5",
+      "filename": "account_settings.txt",
+      "content_type": "text/plain",
+      "content": "Account settings let you update your profile, email address, and notification preferences. You can also change your password from the account settings page.",
+      "chunks": [
+        {
+          "logical_id": "C9",
+          "chunk_index": 0,
+          "content": "Account settings let you update your profile, email address, and notification preferences.",
+          "metadata": {"section": "account", "topic": "settings"}
+        },
+        {
+          "logical_id": "C10",
+          "chunk_index": 1,
+          "content": "You can also change your password from the account settings page.",
+          "metadata": {"section": "account", "topic": "password"}
+        }
+      ]
+    }
+  ],
+  "samples": [
+    {
+      "sample_id": "aq1",
+      "question": "How do I reset my password?",
+      "reference_answer": "Go to account settings, click Forgot password, check your email for a reset link, and follow the link to create a new password.",
+      "expected_facts": ["account settings", "Forgot password", "reset link", "email", "create new password"],
+      "expected_context_chunk_ids": ["C1", "C2"],
+      "category": "direct_factual",
+      "sufficient_context": true
+    },
+    {
+      "sample_id": "aq2",
+      "question": "How long do billing refunds take to process?",
+      "reference_answer": "Billing refunds are processed within 5 business days for eligible charges and are issued to the original payment method.",
+      "expected_facts": ["5 business days", "eligible charges", "original payment method"],
+      "expected_context_chunk_ids": ["C3", "C4"],
+      "category": "direct_factual",
+      "sufficient_context": true
+    },
+    {
+      "sample_id": "aq3",
+      "question": "How long does shipping take and do I get tracking information?",
+      "reference_answer": "Orders ship within 24 hours and tracking information is provided via email.",
+      "expected_facts": ["24 hours", "tracking information", "email"],
+      "expected_context_chunk_ids": ["C5"],
+      "category": "direct_factual",
+      "sufficient_context": true
+    },
+    {
+      "sample_id": "aq4",
+      "question": "Can I get a refund for a purchase from 6 months ago?",
+      "reference_answer": "The knowledge base does not state a time limit for requesting refunds. Billing refunds are processed within 5 business days for eligible charges. Contact support if your refund has not arrived after 10 business days.",
+      "expected_facts": ["5 business days", "eligible charges", "original payment method", "10 business days"],
+      "expected_context_chunk_ids": ["C3", "C4"],
+      "category": "insufficient_context",
+      "sufficient_context": false
+    },
+    {
+      "sample_id": "aq5",
+      "question": "How do I check my API rate limit usage?",
+      "reference_answer": "You can view your rate limit usage in the developer dashboard.",
+      "expected_facts": ["developer dashboard", "view rate limit usage"],
+      "expected_context_chunk_ids": ["C8"],
+      "category": "direct_factual",
+      "sufficient_context": true
+    },
+    {
+      "sample_id": "aq6",
+      "question": "How do I update my email notification preferences?",
+      "reference_answer": "Account settings let you update your profile, email address, and notification preferences.",
+      "expected_facts": ["account settings", "update profile", "email address", "notification preferences"],
+      "expected_context_chunk_ids": ["C9"],
+      "category": "direct_factual",
+      "sufficient_context": true
+    },
+    {
+      "sample_id": "aq7",
+      "question": "What is the company's stock price?",
+      "reference_answer": "I don't have information about the company's stock price.",
+      "expected_facts": [],
+      "expected_context_chunk_ids": [],
+      "category": "no_context",
+      "sufficient_context": false
+    }
+  ]
+}
