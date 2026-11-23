@@ -17,6 +17,27 @@ from .contracts import (
     AnswerSample,
     AgentScenario,
 )
+from .metrics import (
+    average,
+    dcg_at_k,
+    idcg_at_k,
+    ndcg_at_k,
+    precision_at_k,
+    recall_at_k,
+    reciprocal_rank,
+)
+from .retrieval_adapters import (
+    CustomBM25RetrievalAdapter,
+    FrameworkBM25RetrievalAdapter,
+    RetrievalAdapter,
+    RetrievalHit,
+    RetrievalRequest,
+)
+from .retrieval_benchmark import (
+    RetrievalBenchmarkResult,
+    RetrievalQueryResult,
+    run_retrieval_benchmark,
+)
 
 __all__ = [
     "ComparisonDataset",
@@ -29,4 +50,19 @@ __all__ = [
     "RetrievalSample",
     "AnswerSample",
     "AgentScenario",
+    "average",
+    "dcg_at_k",
+    "idcg_at_k",
+    "ndcg_at_k",
+    "precision_at_k",
+    "recall_at_k",
+    "reciprocal_rank",
+    "CustomBM25RetrievalAdapter",
+    "FrameworkBM25RetrievalAdapter",
+    "RetrievalAdapter",
+    "RetrievalHit",
+    "RetrievalRequest",
+    "RetrievalBenchmarkResult",
+    "RetrievalQueryResult",
+    "run_retrieval_benchmark",
 ]
