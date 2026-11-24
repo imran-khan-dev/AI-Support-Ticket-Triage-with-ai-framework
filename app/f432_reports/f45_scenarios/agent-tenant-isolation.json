@@ -1,0 +1,287 @@
+{
+  "scenario_id": "agent-tenant-isolation",
+  "category": "tenant_isolation",
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "shared": true,
+  "custom_trials": [
+    {
+      "scenario_id": "agent-tenant-isolation",
+      "implementation": "custom",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 1.550600165501237,
+      "provider_latency_ms": 0.013799872249364853,
+      "tool_latency_ms": 1.1157998815178871,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-tenant-isolation",
+      "implementation": "custom",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 1.516600139439106,
+      "provider_latency_ms": 0.013799872249364853,
+      "tool_latency_ms": 1.093100057914853,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-tenant-isolation",
+      "implementation": "custom",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 1.511499984189868,
+      "provider_latency_ms": 0.013899989426136017,
+      "tool_latency_ms": 1.0894001461565495,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    }
+  ],
+  "framework_trials": [
+    {
+      "scenario_id": "agent-tenant-isolation",
+      "implementation": "framework",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 2.727799816057086,
+      "provider_latency_ms": 0.03219977952539921,
+      "tool_latency_ms": 1.0810999665409327,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-tenant-isolation",
+      "implementation": "framework",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 2.8967000544071198,
+      "provider_latency_ms": 0.03590015694499016,
+      "tool_latency_ms": 1.1479000095278025,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-tenant-isolation",
+      "implementation": "framework",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 2.704499987885356,
+      "provider_latency_ms": 0.03220001235604286,
+      "tool_latency_ms": 1.075700158253312,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    }
+  ],
+  "custom_success_count": 3,
+  "framework_success_count": 3,
+  "successful_paired_trials": 3,
+  "failed_paired_trials": 0,
+  "custom_stats": {
+    "total_latency_ms": {
+      "median": 1.516600139439106,
+      "mean": 1.5262334297100704,
+      "min": 1.511499984189868,
+      "max": 1.550600165501237
+    },
+    "provider_latency_ms": {
+      "median": 0.013799872249364853,
+      "mean": 0.013833244641621908,
+      "min": 0.013799872249364853,
+      "max": 0.013899989426136017
+    },
+    "tool_latency_ms": {
+      "median": 1.093100057914853,
+      "mean": 1.0994333618630965,
+      "min": 1.0894001461565495,
+      "max": 1.1157998815178871
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "framework_stats": {
+    "total_latency_ms": {
+      "median": 2.727799816057086,
+      "mean": 2.7763332861165204,
+      "min": 2.704499987885356,
+      "max": 2.8967000544071198
+    },
+    "provider_latency_ms": {
+      "median": 0.03220001235604286,
+      "mean": 0.03343331627547741,
+      "min": 0.03219977952539921,
+      "max": 0.03590015694499016
+    },
+    "tool_latency_ms": {
+      "median": 1.0810999665409327,
+      "mean": 1.1015667114406824,
+      "min": 1.075700158253312,
+      "max": 1.1479000095278025
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "aggregate": {
+    "custom": {
+      "trial_count": 3,
+      "success_count": 3,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "median_total_latency_ms": 1.516600139439106,
+      "mean_total_latency_ms": 1.5262334297100704,
+      "median_provider_latency_ms": 0.013799872249364853,
+      "median_tool_latency_ms": 1.093100057914853,
+      "execution_overhead_ms": 0.41296682320535183,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 6,
+      "tool_call_count": 3
+    },
+    "framework": {
+      "trial_count": 3,
+      "success_count": 3,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "median_total_latency_ms": 2.727799816057086,
+      "mean_total_latency_ms": 2.7763332861165204,
+      "median_provider_latency_ms": 0.03220001235604286,
+      "median_tool_latency_ms": 1.0810999665409327,
+      "execution_overhead_ms": 1.6413332584003608,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 6,
+      "tool_call_count": 3
+    },
+    "comparison": {
+      "relative_latency_difference": -0.44402073403198467,
+      "custom_slower": false
+    }
+  }
+}

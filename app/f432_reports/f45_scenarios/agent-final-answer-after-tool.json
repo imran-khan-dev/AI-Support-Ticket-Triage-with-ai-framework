@@ -1,0 +1,287 @@
+{
+  "scenario_id": "agent-final-answer-after-tool",
+  "category": "final_answer_after_tool",
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "shared": true,
+  "custom_trials": [
+    {
+      "scenario_id": "agent-final-answer-after-tool",
+      "implementation": "custom",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 1.6216000076383352,
+      "provider_latency_ms": 0.014099758118391037,
+      "tool_latency_ms": 1.1678000446408987,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-final-answer-after-tool",
+      "implementation": "custom",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 1.6715999227017164,
+      "provider_latency_ms": 0.013399869203567505,
+      "tool_latency_ms": 1.2437999248504639,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-final-answer-after-tool",
+      "implementation": "custom",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 1.6314000822603703,
+      "provider_latency_ms": 0.014299992471933365,
+      "tool_latency_ms": 1.1917001102119684,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    }
+  ],
+  "framework_trials": [
+    {
+      "scenario_id": "agent-final-answer-after-tool",
+      "implementation": "framework",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 3.105000127106905,
+      "provider_latency_ms": 0.03220001235604286,
+      "tool_latency_ms": 1.0726999025791883,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-final-answer-after-tool",
+      "implementation": "framework",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 2.6895999908447266,
+      "provider_latency_ms": 0.031700124964118004,
+      "tool_latency_ms": 1.0526999831199646,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-final-answer-after-tool",
+      "implementation": "framework",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 2.6681998278945684,
+      "provider_latency_ms": 0.03069988451898098,
+      "tool_latency_ms": 1.0577000211924314,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    }
+  ],
+  "custom_success_count": 3,
+  "framework_success_count": 3,
+  "successful_paired_trials": 3,
+  "failed_paired_trials": 0,
+  "custom_stats": {
+    "total_latency_ms": {
+      "median": 1.6314000822603703,
+      "mean": 1.641533337533474,
+      "min": 1.6216000076383352,
+      "max": 1.6715999227017164
+    },
+    "provider_latency_ms": {
+      "median": 0.014099758118391037,
+      "mean": 0.013933206597963968,
+      "min": 0.013399869203567505,
+      "max": 0.014299992471933365
+    },
+    "tool_latency_ms": {
+      "median": 1.1917001102119684,
+      "mean": 1.201100026567777,
+      "min": 1.1678000446408987,
+      "max": 1.2437999248504639
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "framework_stats": {
+    "total_latency_ms": {
+      "median": 2.6895999908447266,
+      "mean": 2.820933315282067,
+      "min": 2.6681998278945684,
+      "max": 3.105000127106905
+    },
+    "provider_latency_ms": {
+      "median": 0.031700124964118004,
+      "mean": 0.03153334061304728,
+      "min": 0.03069988451898098,
+      "max": 0.03220001235604286
+    },
+    "tool_latency_ms": {
+      "median": 1.0577000211924314,
+      "mean": 1.0610333022971947,
+      "min": 1.0526999831199646,
+      "max": 1.0726999025791883
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "aggregate": {
+    "custom": {
+      "trial_count": 3,
+      "success_count": 3,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "median_total_latency_ms": 1.6314000822603703,
+      "mean_total_latency_ms": 1.641533337533474,
+      "median_provider_latency_ms": 0.014099758118391037,
+      "median_tool_latency_ms": 1.1917001102119684,
+      "execution_overhead_ms": 0.426500104367733,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 6,
+      "tool_call_count": 3
+    },
+    "framework": {
+      "trial_count": 3,
+      "success_count": 3,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "median_total_latency_ms": 2.6895999908447266,
+      "mean_total_latency_ms": 2.820933315282067,
+      "median_provider_latency_ms": 0.031700124964118004,
+      "median_tool_latency_ms": 1.0577000211924314,
+      "execution_overhead_ms": 1.7283666723718245,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 6,
+      "tool_call_count": 3
+    },
+    "comparison": {
+      "relative_latency_difference": -0.3934413712769258,
+      "custom_slower": false
+    }
+  }
+}

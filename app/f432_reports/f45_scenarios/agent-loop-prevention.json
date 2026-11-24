@@ -1,0 +1,287 @@
+{
+  "scenario_id": "agent-loop-prevention",
+  "category": "loop_prevention",
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "shared": true,
+  "custom_trials": [
+    {
+      "scenario_id": "agent-loop-prevention",
+      "implementation": "custom",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 4.175000125542283,
+      "provider_latency_ms": 0.03200024366378784,
+      "tool_latency_ms": 3.4815999679267406,
+      "provider_calls": 3,
+      "tool_calls_count": 3,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "max_iterations_reached",
+      "error": "Maximum iterations reached (3).",
+      "execution_steps": 3
+    },
+    {
+      "scenario_id": "agent-loop-prevention",
+      "implementation": "custom",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 4.102699924260378,
+      "provider_latency_ms": 0.03300025127828121,
+      "tool_latency_ms": 3.4251997712999582,
+      "provider_calls": 3,
+      "tool_calls_count": 3,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "max_iterations_reached",
+      "error": "Maximum iterations reached (3).",
+      "execution_steps": 3
+    },
+    {
+      "scenario_id": "agent-loop-prevention",
+      "implementation": "custom",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 4.05830005183816,
+      "provider_latency_ms": 0.030499882996082306,
+      "tool_latency_ms": 3.3962999004870653,
+      "provider_calls": 3,
+      "tool_calls_count": 3,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "max_iterations_reached",
+      "error": "Maximum iterations reached (3).",
+      "execution_steps": 3
+    }
+  ],
+  "framework_trials": [
+    {
+      "scenario_id": "agent-loop-prevention",
+      "implementation": "framework",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 4.322499968111515,
+      "provider_latency_ms": 0.05910010077059269,
+      "tool_latency_ms": 2.1178999450057745,
+      "provider_calls": 3,
+      "tool_calls_count": 2,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "max_iterations_reached",
+      "error": "Agent reached the maximum number of iterations without producing a final answer.",
+      "execution_steps": 3
+    },
+    {
+      "scenario_id": "agent-loop-prevention",
+      "implementation": "framework",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 4.387499997392297,
+      "provider_latency_ms": 0.05959998816251755,
+      "tool_latency_ms": 2.1683000959455967,
+      "provider_calls": 3,
+      "tool_calls_count": 2,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "max_iterations_reached",
+      "error": "Agent reached the maximum number of iterations without producing a final answer.",
+      "execution_steps": 3
+    },
+    {
+      "scenario_id": "agent-loop-prevention",
+      "implementation": "framework",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 4.454199923202395,
+      "provider_latency_ms": 0.060099875554442406,
+      "tool_latency_ms": 2.199999988079071,
+      "provider_calls": 3,
+      "tool_calls_count": 2,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "max_iterations_reached",
+      "error": "Agent reached the maximum number of iterations without producing a final answer.",
+      "execution_steps": 3
+    }
+  ],
+  "custom_success_count": 0,
+  "framework_success_count": 0,
+  "successful_paired_trials": 0,
+  "failed_paired_trials": 3,
+  "custom_stats": {
+    "total_latency_ms": {
+      "median": 4.102699924260378,
+      "mean": 4.112000033880274,
+      "min": 4.05830005183816,
+      "max": 4.175000125542283
+    },
+    "provider_latency_ms": {
+      "median": 0.03200024366378784,
+      "mean": 0.03183345931271712,
+      "min": 0.030499882996082306,
+      "max": 0.03300025127828121
+    },
+    "tool_latency_ms": {
+      "median": 3.4251997712999582,
+      "mean": 3.4343665465712547,
+      "min": 3.3962999004870653,
+      "max": 3.4815999679267406
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "framework_stats": {
+    "total_latency_ms": {
+      "median": 4.387499997392297,
+      "mean": 4.388066629568736,
+      "min": 4.322499968111515,
+      "max": 4.454199923202395
+    },
+    "provider_latency_ms": {
+      "median": 0.05959998816251755,
+      "mean": 0.05959998816251755,
+      "min": 0.05910010077059269,
+      "max": 0.060099875554442406
+    },
+    "tool_latency_ms": {
+      "median": 2.1683000959455967,
+      "mean": 2.1620666763434806,
+      "min": 2.1178999450057745,
+      "max": 2.199999988079071
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "aggregate": {
+    "custom": {
+      "trial_count": 3,
+      "success_count": 0,
+      "failure_count": 3,
+      "success_rate": 0.0,
+      "median_total_latency_ms": 4.102699924260378,
+      "mean_total_latency_ms": 4.112000033880274,
+      "median_provider_latency_ms": 0.03200024366378784,
+      "median_tool_latency_ms": 3.4251997712999582,
+      "execution_overhead_ms": 0.6458000279963017,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 9,
+      "tool_call_count": 9
+    },
+    "framework": {
+      "trial_count": 3,
+      "success_count": 0,
+      "failure_count": 3,
+      "success_rate": 0.0,
+      "median_total_latency_ms": 4.387499997392297,
+      "mean_total_latency_ms": 4.388066629568736,
+      "median_provider_latency_ms": 0.05959998816251755,
+      "median_tool_latency_ms": 2.1683000959455967,
+      "execution_overhead_ms": 2.1663999650627375,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 9,
+      "tool_call_count": 6
+    },
+    "comparison": {
+      "relative_latency_difference": -0.0649116976185047,
+      "custom_slower": false
+    }
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "scenario_id": "agent-multiple-sequential-tools",
+  "category": "multiple_sequential_tool_calls",
+  "description": "Model calls search_knowledge then lookup_ticket_history.",
+  "user_request": "Find my billing info and ticket history.",
+  "expected_outcome": "success",
+  "expected_tool_names": [
+    "search_knowledge",
+    "lookup_ticket_history"
+  ],
+  "expected_tool_call_count": 2,
+  "safety_constraints": [],
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "both_supported": true,
+  "outcome_match": true,
+  "differences": [],
+  "custom": {
+    "scenario_id": "agent-multiple-sequential-tools",
+    "implementation": "custom",
+    "category": "multiple_sequential_tool_calls",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Here is your billing info and ticket history.",
+    "error": null,
+    "provider_calls": 3,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "billing refund"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-2",
+        "name": "lookup_ticket_history",
+        "arguments": {
+          "query": "billing"
+        },
+        "success": true,
+        "error": null,
+        "output": {},
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 2,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 3,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge",
+      "lookup_ticket_history"
+    ],
+    "expected_tool_call_count": 2,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "42c8ff27-a976-4180-a0b6-79a8a873eefd",
+    "raw_details": {
+      "loop_status": "COMPLETED",
+      "loop_iterations": 3,
+      "tracer_events": 18
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": {
+    "scenario_id": "agent-multiple-sequential-tools",
+    "implementation": "framework",
+    "category": "multiple_sequential_tool_calls",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Here is your billing info and ticket history.",
+    "error": null,
+    "provider_calls": 3,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "billing refund"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-2",
+        "name": "lookup_ticket_history",
+        "arguments": {
+          "query": "billing"
+        },
+        "success": true,
+        "error": null,
+        "output": {},
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 2,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 3,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge",
+      "lookup_ticket_history"
+    ],
+    "expected_tool_call_count": 2,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "cca32025-1be4-46b1-8b10-dc50f0f3e3dd",
+    "raw_details": {
+      "graph_error": null,
+      "graph_iteration_count": 3,
+      "graph_tool_call_count": 2,
+      "num_messages": 6
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  }
+}

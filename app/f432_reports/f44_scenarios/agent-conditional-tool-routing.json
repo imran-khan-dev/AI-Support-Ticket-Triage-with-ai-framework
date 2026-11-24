@@ -1,0 +1,142 @@
+{
+  "scenario_id": "agent-conditional-tool-routing",
+  "category": "conditional_tool_routing",
+  "description": "Model routes to search_knowledge for a billing query.",
+  "user_request": "I have a billing refund question.",
+  "expected_outcome": "success",
+  "expected_tool_names": [
+    "search_knowledge"
+  ],
+  "expected_tool_call_count": 1,
+  "safety_constraints": [],
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "both_supported": true,
+  "outcome_match": true,
+  "differences": [],
+  "custom": {
+    "scenario_id": "agent-conditional-tool-routing",
+    "implementation": "custom",
+    "category": "conditional_tool_routing",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Refunds are reviewed within 5 business days.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "billing refund"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "fd2f441a-9b52-4643-b3d7-e96dc58fa0bb",
+    "raw_details": {
+      "loop_status": "COMPLETED",
+      "loop_iterations": 2,
+      "tracer_events": 13
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": {
+    "scenario_id": "agent-conditional-tool-routing",
+    "implementation": "framework",
+    "category": "conditional_tool_routing",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Refunds are reviewed within 5 business days.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "billing refund"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "7fecc86a-9914-4206-b252-b5401faed2e0",
+    "raw_details": {
+      "graph_error": null,
+      "graph_iteration_count": 2,
+      "graph_tool_call_count": 1,
+      "num_messages": 4
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "scenario_id": "agent-approval-required",
+  "category": "approval_required",
+  "description": "create_support_case is gated; without approval it must not execute.",
+  "user_request": "Create a support case for a billing issue.",
+  "expected_outcome": "success",
+  "expected_tool_names": [
+    "create_support_case"
+  ],
+  "expected_tool_call_count": 1,
+  "safety_constraints": [
+    "approval_gated_action_enforcement"
+  ],
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "both_supported": true,
+  "outcome_match": true,
+  "differences": [],
+  "custom": {
+    "scenario_id": "agent-approval-required",
+    "implementation": "custom",
+    "category": "approval_required",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Your request requires approval before a case can be created.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "create_support_case",
+        "arguments": {
+          "subject": "Billing dispute",
+          "description": "Wrong charge",
+          "priority": "high",
+          "category": "billing"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "create_support_case",
+          "success": false,
+          "error": "approval_required",
+          "message": "create_support_case requires approval and was not executed.",
+          "results": []
+        },
+        "handler_invoked": true,
+        "approval_required": true,
+        "approval_granted": false,
+        "approval_source": "application_context",
+        "operation_executed": false,
+        "rejection_classification": "validation_rejected"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "create_support_case"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [
+      "approval_gated_action_enforcement"
+    ],
+    "execution_id": "fb47afad-90c8-48d0-ba6e-fa517e450653",
+    "raw_details": {
+      "loop_status": "COMPLETED",
+      "loop_iterations": 2,
+      "tracer_events": 13
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 1,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": {
+    "scenario_id": "agent-approval-required",
+    "implementation": "framework",
+    "category": "approval_required",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Your request requires approval before a case can be created.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "create_support_case",
+        "arguments": {
+          "subject": "Billing dispute",
+          "description": "Wrong charge",
+          "priority": "high",
+          "category": "billing"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "create_support_case",
+          "success": false,
+          "error": "approval_required",
+          "message": "create_support_case requires approval and was not executed.",
+          "results": []
+        },
+        "handler_invoked": true,
+        "approval_required": true,
+        "approval_granted": false,
+        "approval_source": "application_context",
+        "operation_executed": false,
+        "rejection_classification": "validation_rejected"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "create_support_case"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [
+      "approval_gated_action_enforcement"
+    ],
+    "execution_id": "f2279aeb-df33-429b-961d-0bb8b8dc2d47",
+    "raw_details": {
+      "graph_error": null,
+      "graph_iteration_count": 2,
+      "graph_tool_call_count": 1,
+      "num_messages": 4
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 1,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  }
+}

@@ -1,0 +1,287 @@
+{
+  "scenario_id": "agent-approval-required",
+  "category": "approval_required",
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "shared": true,
+  "custom_trials": [
+    {
+      "scenario_id": "agent-approval-required",
+      "implementation": "custom",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 2.1710998844355345,
+      "provider_latency_ms": 0.014800112694501877,
+      "tool_latency_ms": 1.7245998606085777,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-approval-required",
+      "implementation": "custom",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 2.158900024369359,
+      "provider_latency_ms": 0.015300232917070389,
+      "tool_latency_ms": 1.716200029477477,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-approval-required",
+      "implementation": "custom",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 2.25639995187521,
+      "provider_latency_ms": 0.014300225302577019,
+      "tool_latency_ms": 1.8052998930215836,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    }
+  ],
+  "framework_trials": [
+    {
+      "scenario_id": "agent-approval-required",
+      "implementation": "framework",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 3.254600102081895,
+      "provider_latency_ms": 0.03160000778734684,
+      "tool_latency_ms": 1.6304000746458769,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-approval-required",
+      "implementation": "framework",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 3.2818999607115984,
+      "provider_latency_ms": 0.031000003218650818,
+      "tool_latency_ms": 1.6537001356482506,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    },
+    {
+      "scenario_id": "agent-approval-required",
+      "implementation": "framework",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 4.542900016531348,
+      "provider_latency_ms": 0.08539995178580284,
+      "tool_latency_ms": 2.029400086030364,
+      "provider_calls": 2,
+      "tool_calls_count": 1,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "success",
+      "error": null,
+      "execution_steps": 2
+    }
+  ],
+  "custom_success_count": 3,
+  "framework_success_count": 3,
+  "successful_paired_trials": 3,
+  "failed_paired_trials": 0,
+  "custom_stats": {
+    "total_latency_ms": {
+      "median": 2.1710998844355345,
+      "mean": 2.1954666202267012,
+      "min": 2.158900024369359,
+      "max": 2.25639995187521
+    },
+    "provider_latency_ms": {
+      "median": 0.014800112694501877,
+      "mean": 0.014800190304716429,
+      "min": 0.014300225302577019,
+      "max": 0.015300232917070389
+    },
+    "tool_latency_ms": {
+      "median": 1.7245998606085777,
+      "mean": 1.7486999277025461,
+      "min": 1.716200029477477,
+      "max": 1.8052998930215836
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "framework_stats": {
+    "total_latency_ms": {
+      "median": 3.2818999607115984,
+      "mean": 3.693133359774947,
+      "min": 3.254600102081895,
+      "max": 4.542900016531348
+    },
+    "provider_latency_ms": {
+      "median": 0.03160000778734684,
+      "mean": 0.049333320930600166,
+      "min": 0.031000003218650818,
+      "max": 0.08539995178580284
+    },
+    "tool_latency_ms": {
+      "median": 1.6537001356482506,
+      "mean": 1.771166765441497,
+      "min": 1.6304000746458769,
+      "max": 2.029400086030364
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "aggregate": {
+    "custom": {
+      "trial_count": 3,
+      "success_count": 3,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "median_total_latency_ms": 2.1710998844355345,
+      "mean_total_latency_ms": 2.1954666202267012,
+      "median_provider_latency_ms": 0.014800112694501877,
+      "median_tool_latency_ms": 1.7245998606085777,
+      "execution_overhead_ms": 0.43196650221943855,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 6,
+      "tool_call_count": 3
+    },
+    "framework": {
+      "trial_count": 3,
+      "success_count": 3,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "median_total_latency_ms": 3.2818999607115984,
+      "mean_total_latency_ms": 3.693133359774947,
+      "median_provider_latency_ms": 0.03160000778734684,
+      "median_tool_latency_ms": 1.6537001356482506,
+      "execution_overhead_ms": 1.87263327340285,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 6,
+      "tool_call_count": 3
+    },
+    "comparison": {
+      "relative_latency_difference": -0.3384625032980026,
+      "custom_slower": false
+    }
+  }
+}

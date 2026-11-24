@@ -1,0 +1,261 @@
+{
+  "scenario_id": "agent-maximum-tool-call-limit",
+  "category": "maximum_tool_call_limit",
+  "description": "Model requests 5 tools; only 3 may execute.",
+  "user_request": "Do many lookups at once.",
+  "expected_outcome": "success",
+  "expected_tool_names": [
+    "search_knowledge"
+  ],
+  "expected_tool_call_count": 3,
+  "safety_constraints": [],
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "both_supported": true,
+  "outcome_match": true,
+  "differences": [
+    "tool_calls: custom=3, framework=5",
+    "tool_failures: custom=2, framework=0"
+  ],
+  "custom": {
+    "scenario_id": "agent-maximum-tool-call-limit",
+    "implementation": "custom",
+    "category": "maximum_tool_call_limit",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Stopped at the tool-call limit.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-0",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "q0"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "q1"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-2",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "q2"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-3",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "q3"
+        },
+        "success": false,
+        "error": "ExecutionLimitError: Maximum tool calls reached (3).",
+        "output": {},
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": false,
+        "rejection_classification": "limit_rejected"
+      },
+      {
+        "call_id": "call-4",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "q4"
+        },
+        "success": false,
+        "error": "ExecutionLimitError: Maximum tool calls reached (3).",
+        "output": {},
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": false,
+        "rejection_classification": "limit_rejected"
+      }
+    ],
+    "tool_calls_count": 3,
+    "tool_failures": 2,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge"
+    ],
+    "expected_tool_call_count": 3,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "77d690dc-34e4-43b0-9ad4-acc175b2a261",
+    "raw_details": {
+      "loop_status": "COMPLETED",
+      "loop_iterations": 2,
+      "tracer_events": 13
+    },
+    "limit_rejected_count": 2,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": {
+    "scenario_id": "agent-maximum-tool-call-limit",
+    "implementation": "framework",
+    "category": "maximum_tool_call_limit",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Stopped at the tool-call limit.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-0",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "q0"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "q1"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-2",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "q2"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 5,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge"
+    ],
+    "expected_tool_call_count": 3,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "fb6c2757-c0db-48f6-bcaf-a592f7658dcd",
+    "raw_details": {
+      "graph_error": null,
+      "graph_iteration_count": 2,
+      "graph_tool_call_count": 5,
+      "num_messages": 8
+    },
+    "limit_rejected_count": 2,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  }
+}

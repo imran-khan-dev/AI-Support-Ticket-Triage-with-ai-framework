@@ -1,0 +1,142 @@
+{
+  "scenario_id": "agent-single-tool-success",
+  "category": "single_tool_execution",
+  "description": "Model calls search_knowledge once, then answers.",
+  "user_request": "How do I reset my password?",
+  "expected_outcome": "success",
+  "expected_tool_names": [
+    "search_knowledge"
+  ],
+  "expected_tool_call_count": 1,
+  "safety_constraints": [],
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "both_supported": true,
+  "outcome_match": true,
+  "differences": [],
+  "custom": {
+    "scenario_id": "agent-single-tool-success",
+    "implementation": "custom",
+    "category": "single_tool_execution",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "To reset your password, go to Account Settings and click 'Forgot password'.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "password reset"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": "Forgot password",
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "37f8be29-0ad2-40d8-8dc0-a3176038b440",
+    "raw_details": {
+      "loop_status": "COMPLETED",
+      "loop_iterations": 2,
+      "tracer_events": 13
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": {
+    "scenario_id": "agent-single-tool-success",
+    "implementation": "framework",
+    "category": "single_tool_execution",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "To reset your password, go to Account Settings and click 'Forgot password'.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "password reset"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": "Forgot password",
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "af51563b-b956-4b97-af2e-2ddf4ef70d1e",
+    "raw_details": {
+      "graph_error": null,
+      "graph_iteration_count": 2,
+      "graph_tool_call_count": 1,
+      "num_messages": 4
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  }
+}

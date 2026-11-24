@@ -38,6 +38,32 @@ from .retrieval_benchmark import (
     RetrievalQueryResult,
     run_retrieval_benchmark,
 )
+from .answer_adapters import (
+    AnswerAdapter,
+    AnswerResult,
+    RetrievedContext,
+    CustomAnswerAdapter,
+    FrameworkAnswerAdapter,
+)
+from .answer_metrics import (
+    answer_correctness,
+    answer_relevancy,
+    faithfulness,
+    context_precision,
+    context_recall,
+    unsupported_claims,
+)
+from .answer_comparison import (
+    AnswerQualityComparisonResult,
+    AnswerQualitySampleResult,
+    DETERMINISTIC_METRIC_NAMES,
+    RAGAS_METRIC_NAMES,
+    ALL_METRIC_NAMES,
+    load_answer_quality_dataset,
+    run_answer_quality_comparison,
+    save_json_report,
+    save_markdown_report,
+)
 
 __all__ = [
     "ComparisonDataset",
@@ -65,4 +91,24 @@ __all__ = [
     "RetrievalBenchmarkResult",
     "RetrievalQueryResult",
     "run_retrieval_benchmark",
+    "AnswerAdapter",
+    "AnswerResult",
+    "RetrievedContext",
+    "CustomAnswerAdapter",
+    "FrameworkAnswerAdapter",
+    "answer_correctness",
+    "answer_relevancy",
+    "faithfulness",
+    "context_precision",
+    "context_recall",
+    "unsupported_claims",
+    "AnswerQualityComparisonResult",
+    "AnswerQualitySampleResult",
+    "DETERMINISTIC_METRIC_NAMES",
+    "RAGAS_METRIC_NAMES",
+    "ALL_METRIC_NAMES",
+    "load_answer_quality_dataset",
+    "run_answer_quality_comparison",
+    "save_json_report",
+    "save_markdown_report",
 ]

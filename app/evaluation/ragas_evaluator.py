@@ -38,6 +38,26 @@ def _load_metric(metric_name: str):
                 from ragas.metrics import TopicAdherence
 
                 return TopicAdherence()
+            if metric_name == "faithfulness":
+                from ragas.metrics import Faithfulness
+
+                return Faithfulness()
+            if metric_name == "answer_relevancy":
+                from ragas.metrics import AnswerRelevancy
+
+                return AnswerRelevancy()
+            if metric_name == "answer_correctness":
+                from ragas.metrics import AnswerCorrectness
+
+                return AnswerCorrectness()
+            if metric_name == "context_precision":
+                from ragas.metrics import ContextPrecision
+
+                return ContextPrecision()
+            if metric_name == "context_recall":
+                from ragas.metrics import ContextRecall
+
+                return ContextRecall()
             raise RagasEvaluationError(f"unsupported metric: {metric_name}")
     except RagasEvaluationError:
         raise
@@ -95,12 +115,33 @@ def run_ragas_evaluation(
                     vals.append(v)
         aggregate[name] = (sum(vals) / len(vals)) if vals else None
 
+    # Detect when all scores are NaN/None (e.g., Ragas fell back to an
+    # unsupported model like gpt-4o-mini on Groq). Treat as failed rather
+    # than completed so callers don't mistake NaN for valid scores.
+    def _has_usable_scores() -> bool:
+        for row in per_sample:
+            if isinstance(row, dict):
+                for mname in metric_names:
+                    v = row.get(mname)
+                    if isinstance(v, (int, float)) and not (
+                        isinstance(v, float) and v != v
+                    ):
+                        return True
+        return False
+
+    if not _has_usable_scores():
+        status = "failed"
+        error = "all Ragas metric scores are NaN or None (LLM evaluator may be unavailable)"
+    else:
+        status = "completed"
+        error = None
+
     return {
         "run_id": run_id or str(uuid.uuid4()),
         "metric_names": metric_names,
         "sample_count": len(samples),
         "per_sample": per_sample,
         "aggregate": aggregate,
-        "status": "completed",
-        "error": None,
+        "status": status,
+        "error": error,
     }

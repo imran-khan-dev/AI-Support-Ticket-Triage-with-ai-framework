@@ -1,0 +1,142 @@
+{
+  "scenario_id": "agent-final-answer-after-tool",
+  "category": "final_answer_after_tool",
+  "description": "Model calls search_knowledge, then answers from the result.",
+  "user_request": "What is the refund policy?",
+  "expected_outcome": "success",
+  "expected_tool_names": [
+    "search_knowledge"
+  ],
+  "expected_tool_call_count": 1,
+  "safety_constraints": [],
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "both_supported": true,
+  "outcome_match": true,
+  "differences": [],
+  "custom": {
+    "scenario_id": "agent-final-answer-after-tool",
+    "implementation": "custom",
+    "category": "final_answer_after_tool",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Refund requests are reviewed within 5 business days for eligible charges.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "refund policy"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": "5 business days",
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "550f1963-4ce6-4481-b355-d3dac7ef180c",
+    "raw_details": {
+      "loop_status": "COMPLETED",
+      "loop_iterations": 2,
+      "tracer_events": 13
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": {
+    "scenario_id": "agent-final-answer-after-tool",
+    "implementation": "framework",
+    "category": "final_answer_after_tool",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Refund requests are reviewed within 5 business days for eligible charges.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "refund policy"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "search_knowledge"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": "5 business days",
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "06a4e371-00b7-43e2-bd0f-fbb83bd61121",
+    "raw_details": {
+      "graph_error": null,
+      "graph_iteration_count": 2,
+      "graph_tool_call_count": 1,
+      "num_messages": 4
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  }
+}

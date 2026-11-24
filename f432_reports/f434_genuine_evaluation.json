@@ -1,0 +1,595 @@
+{
+  "experiment_id": "bfcc7a66-b912-4c48-9d73-0a1f9e305afa",
+  "dataset_id": "e89d299a-e3ad-4d10-acdf-30503fc9c0be",
+  "dataset_name": "support-kb-answer-quality-eval",
+  "dataset_version": "1.0.0",
+  "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  "top_k": 5,
+  "provider": "groq",
+  "model": "openai/gpt-oss-20b",
+  "generation_mode": "real_llm",
+  "evaluation_mode": "deterministic + ragas",
+  "ragas_available": false,
+  "ragas_error": "Groq TPD rate limit reached",
+  "overall_status": "failed",
+  "num_samples": 7,
+  "custom_completed": 0,
+  "custom_failed": 7,
+  "framework_completed": 0,
+  "framework_failed": 7,
+  "deterministic_aggregate": {
+    "num_completed": 0,
+    "num_failed": 7,
+    "metrics": {
+      "answer_correctness": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "count": 7
+      },
+      "answer_relevancy": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "count": 7
+      },
+      "faithfulness": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "count": 7
+      },
+      "context_precision": {
+        "mean": 0.35714285714285715,
+        "min": 0.0,
+        "max": 0.6666666666666666,
+        "count": 7
+      },
+      "context_recall": {
+        "mean": 0.8571428571428571,
+        "min": 0.0,
+        "max": 1.0,
+        "count": 7
+      }
+    }
+  },
+  "ragas_aggregate": {
+    "num_completed": 0,
+    "num_failed": 7,
+    "metrics": {
+      "answer_correctness": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "count": 7
+      },
+      "answer_relevancy": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "count": 7
+      },
+      "faithfulness": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "count": 7
+      },
+      "context_precision": {
+        "mean": 0.4523809523809524,
+        "min": 0.0,
+        "max": 0.6666666666666666,
+        "count": 7
+      },
+      "context_recall": {
+        "mean": 0.8571428571428571,
+        "min": 0.0,
+        "max": 1.0,
+        "count": 7
+      }
+    }
+  },
+  "samples": [
+    {
+      "sample_id": "aq1",
+      "question": "How do I reset my password?",
+      "reference": "Go to account settings, click Forgot password, check your email for a reset link, and follow the link to create a new password.",
+      "expected_facts": [
+        "account settings",
+        "Forgot password",
+        "reset link",
+        "email",
+        "create new password"
+      ],
+      "expected_context_chunk_ids": [
+        "C1",
+        "C2"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": null,
+        "contexts": [
+          "To reset your password, go to account settings and click 'Forgot password'.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "You can also change your password from the account settings page."
+        ],
+        "context_chunk_ids": [
+          "C1",
+          "C2",
+          "C10"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.6666666666666666,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": null,
+        "contexts": [
+          "To reset your password, go to account settings and click 'Forgot password'.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "You can also change your password from the account settings page."
+        ],
+        "context_chunk_ids": [
+          "C1",
+          "C2",
+          "C10"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.6666666666666666,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq2",
+      "question": "How long do billing refunds take to process?",
+      "reference": "Billing refunds are processed within 5 business days for eligible charges and are issued to the original payment method.",
+      "expected_facts": [
+        "5 business days",
+        "eligible charges",
+        "original payment method"
+      ],
+      "expected_context_chunk_ids": [
+        "C3",
+        "C4"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": null,
+        "contexts": [
+          "Billing refunds are processed within 5 business days for eligible charges.",
+          "Shipping is free for orders over $50. International shipping may take additional time.",
+          "Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+          "To reset your password, go to account settings and click 'Forgot password'.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account."
+        ],
+        "context_chunk_ids": [
+          "C3",
+          "C6",
+          "C4",
+          "C1",
+          "C2"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.4,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 5,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": null,
+        "contexts": [
+          "Billing refunds are processed within 5 business days for eligible charges.",
+          "Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+          "Shipping is free for orders over $50. International shipping may take additional time."
+        ],
+        "context_chunk_ids": [
+          "C3",
+          "C4",
+          "C6"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.6666666666666666,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq3",
+      "question": "How long does shipping take and do I get tracking information?",
+      "reference": "Orders ship within 24 hours and tracking information is provided via email.",
+      "expected_facts": [
+        "24 hours",
+        "tracking information",
+        "email"
+      ],
+      "expected_context_chunk_ids": [
+        "C5"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": null,
+        "contexts": [
+          "Orders ship within 24 hours and tracking information is provided via email.",
+          "Shipping is free for orders over $50. International shipping may take additional time.",
+          "To reset your password, go to account settings and click 'Forgot password'.",
+          "Account settings let you update your profile, email address, and notification preferences.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account."
+        ],
+        "context_chunk_ids": [
+          "C5",
+          "C6",
+          "C1",
+          "C9",
+          "C2"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.2,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 5,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": null,
+        "contexts": [
+          "Orders ship within 24 hours and tracking information is provided via email.",
+          "Shipping is free for orders over $50. International shipping may take additional time."
+        ],
+        "context_chunk_ids": [
+          "C5",
+          "C6"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.5,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 2,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq4",
+      "question": "Can I get a refund for a purchase from 6 months ago?",
+      "reference": "The knowledge base does not state a time limit for requesting refunds. Billing refunds are processed within 5 business days for eligible charges. Contact support if your refund has not arrived after 10 business days.",
+      "expected_facts": [
+        "5 business days",
+        "eligible charges",
+        "original payment method",
+        "10 business days"
+      ],
+      "expected_context_chunk_ids": [
+        "C3",
+        "C4"
+      ],
+      "category": "insufficient_context",
+      "sufficient_context": false,
+      "custom": {
+        "answer": null,
+        "contexts": [
+          "You can also change your password from the account settings page.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+          "Billing refunds are processed within 5 business days for eligible charges.",
+          "You can view your rate limit usage in the developer dashboard."
+        ],
+        "context_chunk_ids": [
+          "C10",
+          "C2",
+          "C4",
+          "C3",
+          "C8"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.4,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 5,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": null,
+        "contexts": [
+          "You can also change your password from the account settings page.",
+          "Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+          "Billing refunds are processed within 5 business days for eligible charges.",
+          "You can view your rate limit usage in the developer dashboard."
+        ],
+        "context_chunk_ids": [
+          "C10",
+          "C4",
+          "C3",
+          "C8"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.5,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 4,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq5",
+      "question": "How do I check my API rate limit usage?",
+      "reference": "You can view your rate limit usage in the developer dashboard.",
+      "expected_facts": [
+        "developer dashboard",
+        "view rate limit usage"
+      ],
+      "expected_context_chunk_ids": [
+        "C8"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": null,
+        "contexts": [
+          "You can view your rate limit usage in the developer dashboard.",
+          "API access requires authentication with an API key. Rate limits are applied per API key to prevent abuse."
+        ],
+        "context_chunk_ids": [
+          "C8",
+          "C7"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.5,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 2,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": null,
+        "contexts": [
+          "You can view your rate limit usage in the developer dashboard.",
+          "API access requires authentication with an API key. Rate limits are applied per API key to prevent abuse."
+        ],
+        "context_chunk_ids": [
+          "C8",
+          "C7"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.5,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 2,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq6",
+      "question": "How do I update my email notification preferences?",
+      "reference": "Account settings let you update your profile, email address, and notification preferences.",
+      "expected_facts": [
+        "account settings",
+        "update profile",
+        "email address",
+        "notification preferences"
+      ],
+      "expected_context_chunk_ids": [
+        "C9"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": null,
+        "contexts": [
+          "Account settings let you update your profile, email address, and notification preferences.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "Orders ship within 24 hours and tracking information is provided via email."
+        ],
+        "context_chunk_ids": [
+          "C9",
+          "C2",
+          "C5"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.3333333333333333,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": null,
+        "contexts": [
+          "Account settings let you update your profile, email address, and notification preferences.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "Orders ship within 24 hours and tracking information is provided via email."
+        ],
+        "context_chunk_ids": [
+          "C9",
+          "C2",
+          "C5"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.3333333333333333,
+          "context_recall": 1.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq7",
+      "question": "What is the company's stock price?",
+      "reference": "I don't have information about the company's stock price.",
+      "expected_facts": [],
+      "expected_context_chunk_ids": [],
+      "category": "no_context",
+      "sufficient_context": false,
+      "custom": {
+        "answer": null,
+        "contexts": [
+          "Orders ship within 24 hours and tracking information is provided via email.",
+          "Shipping is free for orders over $50. International shipping may take additional time.",
+          "You can also change your password from the account settings page.",
+          "You can view your rate limit usage in the developer dashboard.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account."
+        ],
+        "context_chunk_ids": [
+          "C5",
+          "C6",
+          "C10",
+          "C8",
+          "C2"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 5,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": null,
+        "contexts": [],
+        "context_chunk_ids": [],
+        "metrics": {
+          "answer_correctness": 0.0,
+          "answer_relevancy": 0.0,
+          "faithfulness": 0.0,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        "status": "provider_failure",
+        "error": "Provider service is temporarily unavailable.",
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 0,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    }
+  ]
+}

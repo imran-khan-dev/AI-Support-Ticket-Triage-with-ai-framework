@@ -1,0 +1,98 @@
+{
+  "report_id": "f4.3-final",
+  "date": "2026-11-23",
+  "status": "PARTIALLY_ACCEPTABLE_PENDING_LIVE_EVALUATION",
+  "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  "top_k": 5,
+  "retrieval_isolation": {
+    "custom_uses_custom_stack_only": true,
+    "framework_uses_llamaindex_only": true,
+    "custom_never_calls_knowledge_service": true,
+    "framework_calls_knowledge_service": true,
+    "tenant_isolation_maintained": true,
+    "evidence": "TestRetrievalIsolationEndToEnd (6 tests all PASSED) + real Groq generation aq1"
+  },
+  "generation_provider": {
+    "provider": "groq",
+    "model": "openai/gpt-oss-20b",
+    "base_url": "https://api.groq.com/openai/v1"
+  },
+  "real_llm_generation": {
+    "samples_attempted": 7,
+    "samples_completed": 1,
+    "samples_failed": 6,
+    "failure_reason": "Groq API rate limiting (Provider service is temporarily unavailable) - external service limitation",
+    "aq1_custom_status": "success",
+    "aq1_framework_status": "success",
+    "aq1_custom_backend": "custom-retrieval-stack",
+    "aq1_framework_backend": "llamaindex"
+  },
+  "ragas_evaluation": {
+    "executed": false,
+    "available": false,
+    "reason": "Ragas 0.4.x internally references gpt-4o-mini which is not available on Groq; all LLM-based metrics return NaN",
+    "ragas_version": "0.4.4",
+    "fallback": "Deterministic metrics (exact_match, string_presence, custom string-based faithfulness/answer_relevancy/etc.)"
+  },
+  "deterministic_metrics_7_samples": {
+    "answer_correctness": {"custom": 0.5984, "framework": 0.5219},
+    "answer_relevancy": {"custom": 0.2961, "framework": 0.2394},
+    "faithfulness": {"custom": 0.4884, "framework": 0.5335},
+    "context_precision": {"custom": 0.3571, "framework": 0.4524},
+    "context_recall": {"custom": 0.8571, "framework": 0.8571}
+  },
+  "bm25_retrieval_comparison_6_queries": {
+    "mrr": {"custom": 0.8333, "framework": 1.0},
+    "precision_at_5": {"custom": 0.3333, "framework": 0.4},
+    "recall_at_5": {"custom": 0.75, "framework": 0.9167},
+    "ndcg_at_5": {"custom": 0.8167, "framework": 0.9862},
+    "queries_completed": {"custom": 6, "framework": 6}
+  },
+  "test_results": {
+    "passed": 767,
+    "failed": 0,
+    "deselected": 19,
+    "deselected_tests": [
+      "TestRagasRealEvaluation (2)",
+      "TestEndToEndComparisonRealLLM (5)",
+      "TestReranking (8)",
+      "other slow/external (4)"
+    ],
+    "preexisting_failures": {
+      "test_reranking": 8,
+      "reason": "Missing torch/sentence-transformers"
+    },
+    "pip_check": "clean",
+    "git_diff_check": "clean"
+  },
+  "reports_generated": [
+    "f432_reports/f432_report.json",
+    "f432_reports/f432_report.md",
+    "f432_reports/bm25_comparison_report.json",
+    "f432_reports/bm25_comparison_report.md",
+    "f432_reports/f432_acceptance_report.json",
+    "f432_reports/f432_acceptance_report.md",
+    "f432_reports/f433_real_groq_comparison.json",
+    "f432_reports/f433_real_groq_comparison.md",
+    "f432_reports/f43_acceptance_report.md"
+  ],
+  "limitations": [
+    "Ragas LLM-based evaluation unavailable with Groq (gpt-4o-mini not supported)",
+    "Groq API rate limiting prevented real LLM generation for aq2-aq7",
+    "8 pre-existing CrossEncoder reranking test failures (missing torch/sentence-transformers)",
+    "No alternative LLM provider configured",
+    "Small deterministic evaluation dataset (7 samples); no statistical significance claims"
+  ],
+  "acceptance_recommendation": "PARTIALLY_ACCEPTABLE - Retrieval isolation fully verified; deterministic comparison complete; genuine Ragas evaluation blocked by provider limitation",
+  "verification_labels": {
+    "custom_retrieval_path": "Implemented, Unit tested, Integration tested, Verified with isolated retrieval, Verified with real LLM generation",
+    "framework_retrieval_path": "Implemented, Unit tested, Integration tested, Verified with isolated retrieval, Verified with real LLM generation",
+    "retrieval_isolation_boundaries": "Unit tested, Integration tested, Verified with real LLM generation",
+    "tenant_isolation": "Unit tested, Integration tested",
+    "ragas_compatible_llm": "Not available",
+    "genuine_ragas_evaluation": "Not executed",
+    "deterministic_metrics": "Implemented, Unit tested, Integration tested",
+    "real_llm_generation": "Verified (aq1 only, Groq rate-limited)",
+    "report_generation": "Implemented, Integration tested"
+  }
+}

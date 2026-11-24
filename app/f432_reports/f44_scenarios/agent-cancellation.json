@@ -1,0 +1,56 @@
+{
+  "scenario_id": "agent-cancellation",
+  "category": "cancellation",
+  "description": "Cancellation propagation, where supported by the implementation.",
+  "user_request": "A long-running lookup.",
+  "expected_outcome": "success",
+  "expected_tool_names": [],
+  "expected_tool_call_count": null,
+  "safety_constraints": [],
+  "supported_implementations": [
+    "custom"
+  ],
+  "both_supported": false,
+  "outcome_match": false,
+  "differences": [
+    "unsupported by: framework"
+  ],
+  "custom": {
+    "scenario_id": "agent-cancellation",
+    "implementation": "custom",
+    "category": "cancellation",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Answer.",
+    "error": null,
+    "provider_calls": 1,
+    "provider_retry_attempts": 0,
+    "tool_calls": [],
+    "tool_calls_count": 0,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 1,
+    "max_iterations": 10,
+    "expected_tool_names": [],
+    "expected_tool_call_count": null,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [],
+    "execution_id": "98e4089e-77c4-4741-bbb2-abd96c98b032",
+    "raw_details": {
+      "loop_status": "COMPLETED",
+      "loop_iterations": 1,
+      "tracer_events": 8
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": null
+}
