@@ -1,0 +1,207 @@
+{
+  "scenario_id": "agent-loop-prevention",
+  "category": "loop_prevention",
+  "description": "Model requests the same tool every iteration; loop stops.",
+  "user_request": "Keep searching forever.",
+  "expected_outcome": "max_iterations_reached",
+  "expected_tool_names": [],
+  "expected_tool_call_count": 3,
+  "safety_constraints": [
+    "loop_prevention_enforced"
+  ],
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "both_supported": true,
+  "outcome_match": true,
+  "differences": [
+    "tool_calls: custom=3, framework=2"
+  ],
+  "custom": {
+    "scenario_id": "agent-loop-prevention",
+    "implementation": "custom",
+    "category": "loop_prevention",
+    "status": "max_iterations_reached",
+    "outcome_category": "max_iterations_reached",
+    "final_answer": null,
+    "error": "Maximum iterations reached (3).",
+    "provider_calls": 3,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-loop",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "loop"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-loop",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "loop"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-loop",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "loop"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 3,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 3,
+    "max_iterations": 3,
+    "expected_tool_names": [],
+    "expected_tool_call_count": 3,
+    "expected_outcome": "max_iterations_reached",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [
+      "loop_prevention_enforced"
+    ],
+    "execution_id": "934eda3d-560b-4c22-8daf-cadd72747777",
+    "raw_details": {
+      "loop_status": "MAX_ITERATIONS_REACHED",
+      "loop_iterations": 3,
+      "tracer_events": 18
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": {
+    "scenario_id": "agent-loop-prevention",
+    "implementation": "framework",
+    "category": "loop_prevention",
+    "status": "max_iterations_reached",
+    "outcome_category": "max_iterations_reached",
+    "final_answer": null,
+    "error": "Agent reached the maximum number of iterations without producing a final answer.",
+    "provider_calls": 3,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-loop",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "loop"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      },
+      {
+        "call_id": "call-loop",
+        "name": "search_knowledge",
+        "arguments": {
+          "query": "loop"
+        },
+        "success": true,
+        "error": null,
+        "output": {
+          "tool": "search_knowledge",
+          "results": [],
+          "count": 0,
+          "tenant_id": "tenant-alpha"
+        },
+        "handler_invoked": true,
+        "approval_required": false,
+        "approval_granted": false,
+        "approval_source": "none",
+        "operation_executed": true,
+        "rejection_classification": "none"
+      }
+    ],
+    "tool_calls_count": 2,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 3,
+    "max_iterations": 3,
+    "expected_tool_names": [],
+    "expected_tool_call_count": 3,
+    "expected_outcome": "max_iterations_reached",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [
+      "loop_prevention_enforced"
+    ],
+    "execution_id": "382feb79-0d0d-4e24-ab60-2df30895c1c2",
+    "raw_details": {
+      "graph_error": "Agent reached the maximum number of iterations without producing a final answer.",
+      "graph_iteration_count": 3,
+      "graph_tool_call_count": 2,
+      "num_messages": 6
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  }
+}

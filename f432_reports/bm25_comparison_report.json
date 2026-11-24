@@ -1,0 +1,292 @@
+{
+  "experiment_id": "91990c59-05e7-4f01-994c-216aca8e29b4",
+  "dataset": "support-kb-retrieval-eval",
+  "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  "top_k": 5,
+  "custom": {
+    "status": "completed",
+    "aggregate": {
+      "precision_at_k": {
+        "5": 0.3333333333333333
+      },
+      "recall_at_k": {
+        "5": 0.75
+      },
+      "mrr": 0.8333333333333334,
+      "ndcg_at_k": {
+        "5": 0.8166936067699494
+      },
+      "num_completed": 6,
+      "num_failed": 0
+    },
+    "per_query": [
+      {
+        "query_id": "q1",
+        "query_text": "How do I reset my password?",
+        "retrieved_chunk_ids": [
+          "C1",
+          "C2",
+          "C10"
+        ],
+        "precision_at_k": {
+          "5": 0.6
+        },
+        "recall_at_k": {
+          "5": 1.0
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 1.0
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q2",
+        "query_text": "billing refund processing time",
+        "retrieved_chunk_ids": [
+          "C3",
+          "C6",
+          "C4"
+        ],
+        "precision_at_k": {
+          "5": 0.4
+        },
+        "recall_at_k": {
+          "5": 1.0
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 0.9828422279067397
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q3",
+        "query_text": "track my shipment order",
+        "retrieved_chunk_ids": [],
+        "precision_at_k": {
+          "5": 0.0
+        },
+        "recall_at_k": {
+          "5": 0.0
+        },
+        "reciprocal_rank": 0.0,
+        "ndcg_at_k": {
+          "5": 0.0
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q4",
+        "query_text": "API rate limit authentication",
+        "retrieved_chunk_ids": [
+          "C7",
+          "C8"
+        ],
+        "precision_at_k": {
+          "5": 0.4
+        },
+        "recall_at_k": {
+          "5": 1.0
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 1.0
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q5",
+        "query_text": "update email notification preferences",
+        "retrieved_chunk_ids": [
+          "C9",
+          "C2",
+          "C5"
+        ],
+        "precision_at_k": {
+          "5": 0.2
+        },
+        "recall_at_k": {
+          "5": 0.5
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 0.9173194127129571
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q6",
+        "query_text": "reset link sent to email",
+        "retrieved_chunk_ids": [
+          "C2",
+          "C1",
+          "C9",
+          "C5",
+          "C7"
+        ],
+        "precision_at_k": {
+          "5": 0.4
+        },
+        "recall_at_k": {
+          "5": 1.0
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 1.0
+        },
+        "status": "completed",
+        "error": null
+      }
+    ]
+  },
+  "framework": {
+    "status": "completed",
+    "aggregate": {
+      "precision_at_k": {
+        "5": 0.39999999999999997
+      },
+      "recall_at_k": {
+        "5": 0.9166666666666666
+      },
+      "mrr": 1.0,
+      "ndcg_at_k": {
+        "5": 0.9862199021188262
+      },
+      "num_completed": 6,
+      "num_failed": 0
+    },
+    "per_query": [
+      {
+        "query_id": "q1",
+        "query_text": "How do I reset my password?",
+        "retrieved_chunk_ids": [
+          "C1",
+          "C2",
+          "C10"
+        ],
+        "precision_at_k": {
+          "5": 0.6
+        },
+        "recall_at_k": {
+          "5": 1.0
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 1.0
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q2",
+        "query_text": "billing refund processing time",
+        "retrieved_chunk_ids": [
+          "C3",
+          "C4",
+          "C6"
+        ],
+        "precision_at_k": {
+          "5": 0.4
+        },
+        "recall_at_k": {
+          "5": 1.0
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 1.0
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q3",
+        "query_text": "track my shipment order",
+        "retrieved_chunk_ids": [
+          "C5",
+          "C6"
+        ],
+        "precision_at_k": {
+          "5": 0.4
+        },
+        "recall_at_k": {
+          "5": 1.0
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 1.0
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q4",
+        "query_text": "API rate limit authentication",
+        "retrieved_chunk_ids": [
+          "C7",
+          "C8"
+        ],
+        "precision_at_k": {
+          "5": 0.4
+        },
+        "recall_at_k": {
+          "5": 1.0
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 1.0
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q5",
+        "query_text": "update email notification preferences",
+        "retrieved_chunk_ids": [
+          "C9",
+          "C2",
+          "C5"
+        ],
+        "precision_at_k": {
+          "5": 0.2
+        },
+        "recall_at_k": {
+          "5": 0.5
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 0.9173194127129571
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "query_id": "q6",
+        "query_text": "reset link sent to email",
+        "retrieved_chunk_ids": [
+          "C2",
+          "C1",
+          "C5",
+          "C9"
+        ],
+        "precision_at_k": {
+          "5": 0.4
+        },
+        "recall_at_k": {
+          "5": 1.0
+        },
+        "reciprocal_rank": 1.0,
+        "ndcg_at_k": {
+          "5": 1.0
+        },
+        "status": "completed",
+        "error": null
+      }
+    ]
+  }
+}

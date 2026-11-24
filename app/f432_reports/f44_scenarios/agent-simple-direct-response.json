@@ -1,0 +1,98 @@
+{
+  "scenario_id": "agent-simple-direct-response",
+  "category": "simple_direct_response",
+  "description": "Model answers directly with no tool calls.",
+  "user_request": "Hello, can you help me with my account?",
+  "expected_outcome": "success",
+  "expected_tool_names": [],
+  "expected_tool_call_count": 0,
+  "safety_constraints": [
+    "no_unauthorized_tool_execution"
+  ],
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "both_supported": true,
+  "outcome_match": true,
+  "differences": [],
+  "custom": {
+    "scenario_id": "agent-simple-direct-response",
+    "implementation": "custom",
+    "category": "simple_direct_response",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "I can help with your account. What do you need?",
+    "error": null,
+    "provider_calls": 1,
+    "provider_retry_attempts": 0,
+    "tool_calls": [],
+    "tool_calls_count": 0,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 1,
+    "max_iterations": 10,
+    "expected_tool_names": [],
+    "expected_tool_call_count": 0,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": "help",
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [
+      "no_unauthorized_tool_execution"
+    ],
+    "execution_id": "77af1915-9e41-4bfb-b764-c211280f8303",
+    "raw_details": {
+      "loop_status": "COMPLETED",
+      "loop_iterations": 1,
+      "tracer_events": 8
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": {
+    "scenario_id": "agent-simple-direct-response",
+    "implementation": "framework",
+    "category": "simple_direct_response",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "I can help with your account. What do you need?",
+    "error": null,
+    "provider_calls": 1,
+    "provider_retry_attempts": 0,
+    "tool_calls": [],
+    "tool_calls_count": 0,
+    "tool_failures": 0,
+    "tool_retry_attempts": 0,
+    "execution_steps": 1,
+    "max_iterations": 10,
+    "expected_tool_names": [],
+    "expected_tool_call_count": 0,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": "help",
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [
+      "no_unauthorized_tool_execution"
+    ],
+    "execution_id": "2bccb7ee-f3b7-49c9-98cc-73c885cee02d",
+    "raw_details": {
+      "graph_error": null,
+      "graph_iteration_count": 1,
+      "graph_tool_call_count": 0,
+      "num_messages": 2
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 0,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  }
+}

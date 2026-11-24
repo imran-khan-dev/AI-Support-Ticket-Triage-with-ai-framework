@@ -1,0 +1,287 @@
+{
+  "scenario_id": "agent-provider-failure",
+  "category": "provider_failure",
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "shared": true,
+  "custom_trials": [
+    {
+      "scenario_id": "agent-provider-failure",
+      "implementation": "custom",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 0.22740010172128677,
+      "provider_latency_ms": 0.001700129359960556,
+      "tool_latency_ms": 0.0,
+      "provider_calls": 1,
+      "tool_calls_count": 0,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "provider_failure",
+      "error": "ProviderError: Scripted provider failure: ProviderError",
+      "execution_steps": 1
+    },
+    {
+      "scenario_id": "agent-provider-failure",
+      "implementation": "custom",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 0.22460008040070534,
+      "provider_latency_ms": 0.001700129359960556,
+      "tool_latency_ms": 0.0,
+      "provider_calls": 1,
+      "tool_calls_count": 0,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "provider_failure",
+      "error": "ProviderError: Scripted provider failure: ProviderError",
+      "execution_steps": 1
+    },
+    {
+      "scenario_id": "agent-provider-failure",
+      "implementation": "custom",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 0.22280006669461727,
+      "provider_latency_ms": 0.001600012183189392,
+      "tool_latency_ms": 0.0,
+      "provider_calls": 1,
+      "tool_calls_count": 0,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "provider_failure",
+      "error": "ProviderError: Scripted provider failure: ProviderError",
+      "execution_steps": 1
+    }
+  ],
+  "framework_trials": [
+    {
+      "scenario_id": "agent-provider-failure",
+      "implementation": "framework",
+      "trial_number": 1,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 0.9478998836129904,
+      "provider_latency_ms": 0.003400025889277458,
+      "tool_latency_ms": 0.0,
+      "provider_calls": 1,
+      "tool_calls_count": 0,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "provider_failure",
+      "error": "Provider service is temporarily unavailable.",
+      "execution_steps": 1
+    },
+    {
+      "scenario_id": "agent-provider-failure",
+      "implementation": "framework",
+      "trial_number": 2,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 0.9519997984170914,
+      "provider_latency_ms": 0.003400025889277458,
+      "tool_latency_ms": 0.0,
+      "provider_calls": 1,
+      "tool_calls_count": 0,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "provider_failure",
+      "error": "Provider service is temporarily unavailable.",
+      "execution_steps": 1
+    },
+    {
+      "scenario_id": "agent-provider-failure",
+      "implementation": "framework",
+      "trial_number": 3,
+      "execution_mode": "deterministic",
+      "total_latency_ms": 1.0380998719483614,
+      "provider_latency_ms": 0.0030999071896076202,
+      "tool_latency_ms": 0.0,
+      "provider_calls": 1,
+      "tool_calls_count": 0,
+      "tool_failures": 0,
+      "input_tokens": null,
+      "output_tokens": null,
+      "total_tokens": null,
+      "estimated_cost_usd": null,
+      "model": null,
+      "provider": "scripted",
+      "pricing_source": null,
+      "pricing_date": null,
+      "status": "provider_failure",
+      "error": "Provider service is temporarily unavailable.",
+      "execution_steps": 1
+    }
+  ],
+  "custom_success_count": 0,
+  "framework_success_count": 0,
+  "successful_paired_trials": 0,
+  "failed_paired_trials": 3,
+  "custom_stats": {
+    "total_latency_ms": {
+      "median": 0.22460008040070534,
+      "mean": 0.22493341627220312,
+      "min": 0.22280006669461727,
+      "max": 0.22740010172128677
+    },
+    "provider_latency_ms": {
+      "median": 0.001700129359960556,
+      "mean": 0.0016667569677035015,
+      "min": 0.001600012183189392,
+      "max": 0.001700129359960556
+    },
+    "tool_latency_ms": {
+      "median": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "framework_stats": {
+    "total_latency_ms": {
+      "median": 0.9519997984170914,
+      "mean": 0.979333184659481,
+      "min": 0.9478998836129904,
+      "max": 1.0380998719483614
+    },
+    "provider_latency_ms": {
+      "median": 0.003400025889277458,
+      "mean": 0.0032999863227208457,
+      "min": 0.0030999071896076202,
+      "max": 0.003400025889277458
+    },
+    "tool_latency_ms": {
+      "median": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "input_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "output_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "total_tokens": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "estimated_cost_usd": {
+      "median": null,
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "aggregate": {
+    "custom": {
+      "trial_count": 3,
+      "success_count": 0,
+      "failure_count": 3,
+      "success_rate": 0.0,
+      "median_total_latency_ms": 0.22460008040070534,
+      "mean_total_latency_ms": 0.22493341627220312,
+      "median_provider_latency_ms": 0.001700129359960556,
+      "median_tool_latency_ms": 0.0,
+      "execution_overhead_ms": 0.22326665930449963,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 3,
+      "tool_call_count": 0
+    },
+    "framework": {
+      "trial_count": 3,
+      "success_count": 0,
+      "failure_count": 3,
+      "success_rate": 0.0,
+      "median_total_latency_ms": 0.9519997984170914,
+      "mean_total_latency_ms": 0.979333184659481,
+      "median_provider_latency_ms": 0.003400025889277458,
+      "median_tool_latency_ms": 0.0,
+      "execution_overhead_ms": 0.9760331983367602,
+      "mean_input_tokens": null,
+      "mean_output_tokens": null,
+      "mean_total_tokens": null,
+      "total_tokens_across_successful": null,
+      "mean_estimated_cost_usd": null,
+      "aggregate_estimated_cost_usd": null,
+      "provider_call_count": 3,
+      "tool_call_count": 0
+    },
+    "comparison": {
+      "relative_latency_difference": -0.7640754958413307,
+      "custom_slower": false
+    }
+  }
+}

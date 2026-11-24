@@ -1,0 +1,72 @@
+{
+  "experiment_id": "f4.3.2-final",
+  "date": "2026-11-23",
+  "status": "COMPLETED",
+  "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  "top_k": 5,
+  "test_results": {
+    "full_suite_passed": 761,
+    "full_suite_failed": 0,
+    "deselected": 19,
+    "pip_check_clean": true,
+    "git_diff_check_clean": true,
+    "preexisting_failures": 8
+  },
+  "answer_quality_comparison": {
+    "samples": 7,
+    "custom_completed": 7,
+    "custom_failed": 0,
+    "framework_completed": 7,
+    "framework_failed": 0,
+    "ragas_available": false,
+    "aggregate_metrics": {
+      "answer_correctness": {"custom": 0.5984, "framework": 0.5219},
+      "answer_relevancy": {"custom": 0.2961, "framework": 0.2394},
+      "faithfulness": {"custom": 0.4884, "framework": 0.5335},
+      "context_precision": {"custom": 0.3571, "framework": 0.4524},
+      "context_recall": {"custom": 0.8571, "framework": 0.8571}
+    }
+  },
+  "bm25_retrieval_comparison": {
+    "queries": 6,
+    "custom_completed": 6,
+    "framework_completed": 6,
+    "aggregate_metrics": {
+      "mrr": {"custom": 0.8333, "framework": 1.0},
+      "precision_at_5": {"custom": 0.3333, "framework": 0.4},
+      "recall_at_5": {"custom": 0.75, "framework": 0.9167},
+      "ndcg_at_5": {"custom": 0.8167, "framework": 0.9862}
+    },
+    "per_query_match": 3
+  },
+  "ragas_status": {
+    "available": false,
+    "reason": "Ragas 0.4.x internally references gpt-4o-mini which does not exist on Groq; all LLM-based metrics return nan",
+    "fallback": "Deterministic metrics (exact_match, string_presence, custom string-based faithfulness/answer_relevancy/etc.)"
+  },
+  "reports": {
+    "answer_quality_json": "f432_reports/f432_report.json",
+    "answer_quality_markdown": "f432_reports/f432_report.md",
+    "bm25_json": "f432_reports/bm25_comparison_report.json",
+    "bm25_markdown": "f432_reports/bm25_comparison_report.md",
+    "acceptance_markdown": "f432_reports/f432_acceptance_report.md"
+  },
+  "acceptance_criteria": {
+    "test_suite_passes": "PASS",
+    "pip_check_clean": "PASS",
+    "git_diff_check_clean": "PASS",
+    "answer_quality_all_samples_completed": "PASS",
+    "deterministic_metrics_computed": "PASS",
+    "ragas_unavailable_handled": "PASS",
+    "framework_bm25_validated_against_postgresql": "PASS",
+    "reports_generated": "PASS",
+    "custom_adapter_no_knowledge_service": "PASS",
+    "framework_adapter_uses_knowledge_service": "PASS"
+  },
+  "limitations": [
+    "Ragas LLM-based evaluation unavailable with Groq (gpt-4o-mini not supported)",
+    "8 pre-existing CrossEncoder reranking test failures due to missing torch/sentence-transformers",
+    "End-to-end real-LLM tests skip when Groq API temporarily unavailable",
+    "Small deterministic evaluation dataset; no statistical significance claims"
+  ]
+}

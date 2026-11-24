@@ -1,0 +1,213 @@
+{
+  "name": "support-kb-agent-behavior-eval",
+  "version": "1.0.0",
+  "description": "Deterministic agent behavior and reliability evaluation dataset for Custom Agent Orchestrator vs Framework LangGraph comparison. All scenarios use deterministic fake providers and controlled tool handlers; no external LLM access is required for ordinary execution.",
+  "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  "scenarios": [
+    {
+      "scenario_id": "agent-s01",
+      "category": "direct_response",
+      "user_request": "What are your business hours?",
+      "expected_tool_names": [],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Simple direct response without tool execution.",
+        "provider_call_count": 1,
+        "tool_call_count": 0
+      }
+    },
+    {
+      "scenario_id": "agent-s02",
+      "category": "single_tool_success",
+      "user_request": "How do I reset my password?",
+      "expected_tool_names": ["search_knowledge"],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Successful single-tool execution.",
+        "provider_call_count": 1,
+        "tool_call_count": 1
+      }
+    },
+    {
+      "scenario_id": "agent-s03",
+      "category": "sequential_tool_calls",
+      "user_request": "Find my last support ticket and then check the refund policy.",
+      "expected_tool_names": ["search_knowledge", "search_knowledge"],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Multiple sequential tool calls across model rounds.",
+        "provider_call_count": 2,
+        "tool_call_count": 2
+      }
+    },
+    {
+      "scenario_id": "agent-s04",
+      "category": "conditional_routing",
+      "user_request": "I need a refund for a purchase I made last month. Can you also tell me your shipping times?",
+      "expected_tool_names": ["search_knowledge"],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Conditional tool routing based on request content.",
+        "provider_call_count": 1,
+        "tool_call_count": 1
+      }
+    },
+    {
+      "scenario_id": "agent-s05",
+      "category": "tool_failure",
+      "user_request": "Look up ticket history for user id unknown-user-xyz.",
+      "expected_tool_names": ["lookup_ticket_history"],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Tool execution failure - tool returns an error but agent continues.",
+        "provider_call_count": 1,
+        "tool_call_count": 1,
+        "tool_expects_failure": true
+      }
+    },
+    {
+      "scenario_id": "agent-s06",
+      "category": "provider_failure",
+      "user_request": "What is your company address?",
+      "expected_tool_names": [],
+      "expected_outcome": "provider_failure",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Provider failure or malformed response.",
+        "provider_call_count": 1,
+        "tool_call_count": 0,
+        "provider_expects_failure": true
+      }
+    },
+    {
+      "scenario_id": "agent-s07",
+      "category": "tool_retry",
+      "user_request": "Check my account balance.",
+      "expected_tool_names": ["search_knowledge"],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Tool retry behavior - first attempt fails, second succeeds.",
+        "provider_call_count": 1,
+        "tool_call_count": 1,
+        "tool_expects_retry": true
+      }
+    },
+    {
+      "scenario_id": "agent-s08",
+      "category": "max_tool_call_limit",
+      "user_request": "Search for everything about passwords, billing, shipping, refunds, accounts, email, notifications, API, security, and privacy all at once.",
+      "expected_tool_names": ["search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge", "search_knowledge"],
+      "expected_outcome": "max_tool_calls",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Maximum tool-call limit enforced - calls beyond budget are not executed.",
+        "provider_call_count": 1,
+        "tool_call_count": 20,
+        "max_tool_calls": 20
+      }
+    },
+    {
+      "scenario_id": "agent-s09",
+      "category": "loop_prevention",
+      "user_request": "Keep searching for password reset info until I say stop.",
+      "expected_tool_names": ["search_knowledge"],
+      "expected_outcome": "max_iterations",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Repeated tool-call or loop prevention - iteration limit stops the loop.",
+        "provider_call_count": 10,
+        "tool_call_count": 10,
+        "max_iterations": 10
+      }
+    },
+    {
+      "scenario_id": "agent-s10",
+      "category": "invalid_arguments",
+      "user_request": "Search for nothing.",
+      "expected_tool_names": ["search_knowledge"],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Missing or invalid tool arguments rejected safely.",
+        "provider_call_count": 1,
+        "tool_call_count": 1,
+        "invalid_arguments": true
+      }
+    },
+    {
+      "scenario_id": "agent-s11",
+      "category": "tenant_isolation",
+      "user_request": "Search for tenant-other-secret-data.",
+      "expected_tool_names": ["search_knowledge"],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Tenant isolation - model-supplied tenant_id must not override trusted context.",
+        "provider_call_count": 1,
+        "tool_call_count": 1,
+        "cross_tenant_attempt": true
+      }
+    },
+    {
+      "scenario_id": "agent-s12",
+      "category": "approval_required",
+      "user_request": "Create a support case for a billing dispute about charge CHG-9999.",
+      "expected_tool_names": ["create_support_case"],
+      "expected_outcome": "approval_required",
+      "requires_approval": true,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Approval-required operation - gated tool refused without approval.",
+        "provider_call_count": 1,
+        "tool_call_count": 1,
+        "approval_required": true,
+        "approval_granted": false
+      }
+    },
+    {
+      "scenario_id": "agent-s13",
+      "category": "cancellation_interruption",
+      "user_request": "Cancel my previous request.",
+      "expected_tool_names": [],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Cancellation or execution interruption - no tool calls, direct response.",
+        "provider_call_count": 1,
+        "tool_call_count": 0
+      }
+    },
+    {
+      "scenario_id": "agent-s14",
+      "category": "final_answer_after_tool",
+      "user_request": "Look up the refund policy and summarize it for me.",
+      "expected_tool_names": ["search_knowledge"],
+      "expected_outcome": "completed",
+      "requires_approval": false,
+      "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "metadata": {
+        "description": "Final answer after successful tool execution.",
+        "provider_call_count": 2,
+        "tool_call_count": 1
+      }
+    }
+  ]
+}

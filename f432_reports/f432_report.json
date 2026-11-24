@@ -1,0 +1,615 @@
+{
+  "experiment_id": "e99bbe8c-5d78-42ab-b31b-caa0f001971f",
+  "dataset_id": "16dafdb5-f374-42a9-880e-1964cf35ec1c",
+  "dataset_name": "support-kb-answer-quality-eval",
+  "run_config": {
+    "implementation": "custom",
+    "component": "agent",
+    "dataset_id": "16dafdb5-f374-42a9-880e-1964cf35ec1c",
+    "experiment_id": "e99bbe8c-5d78-42ab-b31b-caa0f001971f",
+    "model_name": null,
+    "embedding_name": null,
+    "top_k": 5,
+    "max_iterations": null,
+    "max_tool_calls": null,
+    "tenant_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+    "extra": {
+      "framework_included": true,
+      "ragas_available": false,
+      "ragas_run": false
+    }
+  },
+  "samples": [
+    {
+      "sample_id": "aq1",
+      "question": "How do I reset my password?",
+      "reference": "Go to account settings, click Forgot password, check your email for a reset link, and follow the link to create a new password.",
+      "expected_facts": [
+        "account settings",
+        "Forgot password",
+        "reset link",
+        "email",
+        "create new password"
+      ],
+      "expected_context_chunk_ids": [
+        "C1",
+        "C2"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": "To reset your password:\n\n1. Go to **Account Settings**.  \n2. Click the **“Forgot password”** button.  \n3. A reset link will be sent to the email address on file.  \n4. Open that email and click the link to create a new password and regain access.  \n\nYou can also change your password directly from the Account Settings page if you’re already logged in.",
+        "contexts": [
+          "To reset your password, go to account settings and click 'Forgot password'.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "You can also change your password from the account settings page."
+        ],
+        "context_chunk_ids": [
+          "C1",
+          "C2",
+          "C10"
+        ],
+        "metrics": {
+          "answer_correctness": 0.7029288702928871,
+          "answer_relevancy": 0.22420546603756789,
+          "faithfulness": 0.7391304347826086,
+          "context_precision": 0.6666666666666666,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": "To reset your password:\n\n1. Go to **Account Settings**.  \n2. Click the **“Forgot password”** button.  \n3. A reset link will be sent to the email address on file.  \n4. Open that email and click the link to create a new password and regain access.  \n\nYou can also change your password directly from the Account Settings page if you’re already logged in.",
+        "contexts": [
+          "To reset your password, go to account settings and click 'Forgot password'.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "You can also change your password from the account settings page."
+        ],
+        "context_chunk_ids": [
+          "C1",
+          "C2",
+          "C10"
+        ],
+        "metrics": {
+          "answer_correctness": 0.7029288702928871,
+          "answer_relevancy": 0.22420546603756789,
+          "faithfulness": 0.7391304347826086,
+          "context_precision": 0.6666666666666666,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq2",
+      "question": "How long do billing refunds take to process?",
+      "reference": "Billing refunds are processed within 5 business days for eligible charges and are issued to the original payment method.",
+      "expected_facts": [
+        "5 business days",
+        "eligible charges",
+        "original payment method"
+      ],
+      "expected_context_chunk_ids": [
+        "C3",
+        "C4"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": "Billing refunds are processed within **5 business days** for eligible charges.",
+        "contexts": [
+          "Billing refunds are processed within 5 business days for eligible charges.",
+          "Shipping is free for orders over $50. International shipping may take additional time.",
+          "Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+          "To reset your password, go to account settings and click 'Forgot password'.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account."
+        ],
+        "context_chunk_ids": [
+          "C3",
+          "C6",
+          "C4",
+          "C1",
+          "C2"
+        ],
+        "metrics": {
+          "answer_correctness": 0.7070707070707071,
+          "answer_relevancy": 0.4325609031491385,
+          "faithfulness": 1.0,
+          "context_precision": 0.4,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 5,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": "Billing refunds are processed within **5 business days** for eligible charges.",
+        "contexts": [
+          "Billing refunds are processed within 5 business days for eligible charges.",
+          "Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+          "Shipping is free for orders over $50. International shipping may take additional time."
+        ],
+        "context_chunk_ids": [
+          "C3",
+          "C4",
+          "C6"
+        ],
+        "metrics": {
+          "answer_correctness": 0.7070707070707071,
+          "answer_relevancy": 0.4325609031491385,
+          "faithfulness": 1.0,
+          "context_precision": 0.6666666666666666,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq3",
+      "question": "How long does shipping take and do I get tracking information?",
+      "reference": "Orders ship within 24 hours and tracking information is provided via email.",
+      "expected_facts": [
+        "24 hours",
+        "tracking information",
+        "email"
+      ],
+      "expected_context_chunk_ids": [
+        "C5"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": "Shipping takes up to 24 hours, and you’ll receive tracking information via email. (International orders may take a bit longer.)",
+        "contexts": [
+          "Orders ship within 24 hours and tracking information is provided via email.",
+          "Shipping is free for orders over $50. International shipping may take additional time.",
+          "Account settings let you update your profile, email address, and notification preferences.",
+          "To reset your password, go to account settings and click 'Forgot password'.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account."
+        ],
+        "context_chunk_ids": [
+          "C5",
+          "C6",
+          "C9",
+          "C1",
+          "C2"
+        ],
+        "metrics": {
+          "answer_correctness": 0.7425742574257426,
+          "answer_relevancy": 0.3351668500183351,
+          "faithfulness": 0.6923076923076923,
+          "context_precision": 0.2,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 5,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": "Shipping takes up to 24 hours to ship out, and you’ll receive tracking information via email once the order is dispatched. Shipping is free for orders over $50, and international shipments may take additional time.",
+        "contexts": [
+          "Orders ship within 24 hours and tracking information is provided via email.",
+          "Shipping is free for orders over $50. International shipping may take additional time."
+        ],
+        "context_chunk_ids": [
+          "C5",
+          "C6"
+        ],
+        "metrics": {
+          "answer_correctness": 0.6695501730103806,
+          "answer_relevancy": 0.23533964669459112,
+          "faithfulness": 0.6666666666666666,
+          "context_precision": 0.5,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 2,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq4",
+      "question": "Can I get a refund for a purchase from 6 months ago?",
+      "reference": "The knowledge base does not state a time limit for requesting refunds. Billing refunds are processed within 5 business days for eligible charges. Contact support if your refund has not arrived after 10 business days.",
+      "expected_facts": [
+        "5 business days",
+        "eligible charges",
+        "original payment method",
+        "10 business days"
+      ],
+      "expected_context_chunk_ids": [
+        "C3",
+        "C4"
+      ],
+      "category": "insufficient_context",
+      "sufficient_context": false,
+      "custom": {
+        "answer": "I’m sorry, but the provided information doesn’t specify whether refunds can be issued for purchases made as far back as six months ago. You may want to contact support directly to confirm the refund policy for older purchases.",
+        "contexts": [
+          "You can also change your password from the account settings page.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+          "Billing refunds are processed within 5 business days for eligible charges.",
+          "You can view your rate limit usage in the developer dashboard."
+        ],
+        "context_chunk_ids": [
+          "C10",
+          "C2",
+          "C4",
+          "C3",
+          "C8"
+        ],
+        "metrics": {
+          "answer_correctness": 0.05429864253393665,
+          "answer_relevancy": 0.12929864253393664,
+          "faithfulness": 0.21739130434782608,
+          "context_precision": 0.4,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 5,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": "I’m sorry, but the provided information doesn’t specify whether refunds can be issued for purchases made as far back as six months ago. You may want to reach out to support for clarification.",
+        "contexts": [
+          "You can also change your password from the account settings page.",
+          "Refunds are issued to the original payment method. Contact support if your refund has not arrived after 10 business days.",
+          "Billing refunds are processed within 5 business days for eligible charges.",
+          "You can view your rate limit usage in the developer dashboard."
+        ],
+        "context_chunk_ids": [
+          "C10",
+          "C4",
+          "C3",
+          "C8"
+        ],
+        "metrics": {
+          "answer_correctness": 0.0343980343980344,
+          "answer_relevancy": 0.10018750808224491,
+          "faithfulness": 0.15,
+          "context_precision": 0.5,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 4,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq5",
+      "question": "How do I check my API rate limit usage?",
+      "reference": "You can view your rate limit usage in the developer dashboard.",
+      "expected_facts": [
+        "developer dashboard",
+        "view rate limit usage"
+      ],
+      "expected_context_chunk_ids": [
+        "C8"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": "You can view your API rate‑limit usage directly in the **Developer Dashboard**. Log in to your account, navigate to the dashboard, and look for the rate‑limit or usage section to see how many requests you’ve made and how many remain.",
+        "contexts": [
+          "You can view your rate limit usage in the developer dashboard.",
+          "API access requires authentication with an API key. Rate limits are applied per API key to prevent abuse."
+        ],
+        "context_chunk_ids": [
+          "C8",
+          "C7"
+        ],
+        "metrics": {
+          "answer_correctness": 0.7033898305084746,
+          "answer_relevancy": 0.27914740626605034,
+          "faithfulness": 0.3888888888888889,
+          "context_precision": 0.5,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 2,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": "You can view your API rate‑limit usage directly in the **Developer Dashboard**. Log in to your account, navigate to the dashboard, and look for the rate‑limit or usage section to see how many requests you’ve made and how many remain.",
+        "contexts": [
+          "You can view your rate limit usage in the developer dashboard.",
+          "API access requires authentication with an API key. Rate limits are applied per API key to prevent abuse."
+        ],
+        "context_chunk_ids": [
+          "C8",
+          "C7"
+        ],
+        "metrics": {
+          "answer_correctness": 0.7033898305084746,
+          "answer_relevancy": 0.27914740626605034,
+          "faithfulness": 0.3888888888888889,
+          "context_precision": 0.5,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 2,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq6",
+      "question": "How do I update my email notification preferences?",
+      "reference": "Account settings let you update your profile, email address, and notification preferences.",
+      "expected_facts": [
+        "account settings",
+        "update profile",
+        "email address",
+        "notification preferences"
+      ],
+      "expected_context_chunk_ids": [
+        "C9"
+      ],
+      "category": "direct_factual",
+      "sufficient_context": true,
+      "custom": {
+        "answer": "To update your email notification preferences, follow these steps:\n\n1. **Log in** to your account on the website or app.  \n2. Navigate to **Account Settings** (often found in the profile menu or sidebar).  \n3. Within Account Settings, locate the **Notification Preferences** section.  \n4. Adjust the options for email notifications to your liking—enable or disable specific alerts, change frequency, etc.  \n5. **Save** your changes.\n\nAfter saving, the new preferences will take effect immediately.",
+        "contexts": [
+          "Account settings let you update your profile, email address, and notification preferences.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "Orders ship within 24 hours and tracking information is provided via email."
+        ],
+        "context_chunk_ids": [
+          "C9",
+          "C2",
+          "C5"
+        ],
+        "metrics": {
+          "answer_correctness": 0.4516609880749574,
+          "answer_relevancy": 0.11174870737320303,
+          "faithfulness": 0.2564102564102564,
+          "context_precision": 0.3333333333333333,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [
+          "**Save** your changes"
+        ],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": "To update your email notification preferences, follow these steps:\n\n1. **Log in** to your account on the website or app.  \n2. Navigate to **Account Settings** (often found in the profile menu or sidebar).  \n3. Within Account Settings, locate the **Notification Preferences** section.  \n4. Adjust the options for email notifications to your liking—enable or disable specific alerts, change frequency, etc.  \n5. **Save** your changes.\n\nAfter saving, the new preferences will take effect immediately.",
+        "contexts": [
+          "Account settings let you update your profile, email address, and notification preferences.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account.",
+          "Orders ship within 24 hours and tracking information is provided via email."
+        ],
+        "context_chunk_ids": [
+          "C9",
+          "C2",
+          "C5"
+        ],
+        "metrics": {
+          "answer_correctness": 0.4516609880749574,
+          "answer_relevancy": 0.11174870737320303,
+          "faithfulness": 0.2564102564102564,
+          "context_precision": 0.3333333333333333,
+          "context_recall": 1.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [
+          "**Save** your changes"
+        ],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 3,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    },
+    {
+      "sample_id": "aq7",
+      "question": "What is the company's stock price?",
+      "reference": "I don't have information about the company's stock price.",
+      "expected_facts": [],
+      "expected_context_chunk_ids": [],
+      "category": "no_context",
+      "sufficient_context": false,
+      "custom": {
+        "answer": "I’m sorry, but I don’t have any information about the company’s stock price.",
+        "contexts": [
+          "Orders ship within 24 hours and tracking information is provided via email.",
+          "Shipping is free for orders over $50. International shipping may take additional time.",
+          "You can also change your password from the account settings page.",
+          "You can view your rate limit usage in the developer dashboard.",
+          "A reset link will be sent to your email address. Follow the link in the email to create a new password and regain access to your account."
+        ],
+        "context_chunk_ids": [
+          "C5",
+          "C6",
+          "C10",
+          "C8",
+          "C2"
+        ],
+        "metrics": {
+          "answer_correctness": 0.8270676691729323,
+          "answer_relevancy": 0.5605926581158779,
+          "faithfulness": 0.125,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 5,
+          "retrieval_backend": "custom-retrieval-stack"
+        }
+      },
+      "framework": {
+        "answer": "I’m sorry, but I don’t have access to real‑time stock market data. I can’t provide the current price of the company’s shares.",
+        "contexts": [],
+        "context_chunk_ids": [],
+        "metrics": {
+          "answer_correctness": 0.38461538461538464,
+          "answer_relevancy": 0.2923076923076923,
+          "faithfulness": null,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        "status": "success",
+        "error": null,
+        "unsupported_claims": [
+          "I’m sorry, but I don’t have access to real‑time stock market data",
+          "I can’t provide the current price of the company’s shares"
+        ],
+        "metadata": {
+          "top_k": 5,
+          "num_contexts": 0,
+          "retrieval_backend": "llamaindex"
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "num_samples": 7,
+    "num_completed_custom": 7,
+    "num_completed_framework": 7,
+    "num_failed_custom": 0,
+    "num_failed_framework": 0,
+    "custom": {
+      "num_completed": 7,
+      "num_failed": 0,
+      "metrics": {
+        "answer_correctness": {
+          "mean": 0.5984272807256625,
+          "min": 0.05429864253393665,
+          "max": 0.8270676691729323,
+          "count": 7
+        },
+        "answer_relevancy": {
+          "mean": 0.29610294764201567,
+          "min": 0.11174870737320303,
+          "max": 0.5605926581158779,
+          "count": 7
+        },
+        "faithfulness": {
+          "mean": 0.48844693953389606,
+          "min": 0.125,
+          "max": 1.0,
+          "count": 7
+        },
+        "context_precision": {
+          "mean": 0.35714285714285715,
+          "min": 0.0,
+          "max": 0.6666666666666666,
+          "count": 7
+        },
+        "context_recall": {
+          "mean": 0.8571428571428571,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 7
+        }
+      }
+    },
+    "framework": {
+      "num_completed": 7,
+      "num_failed": 0,
+      "metrics": {
+        "answer_correctness": {
+          "mean": 0.5219448554244036,
+          "min": 0.0343980343980344,
+          "max": 0.7070707070707071,
+          "count": 7
+        },
+        "answer_relevancy": {
+          "mean": 0.23935676141578402,
+          "min": 0.10018750808224491,
+          "max": 0.4325609031491385,
+          "count": 7
+        },
+        "faithfulness": {
+          "mean": 0.5335160411247367,
+          "min": 0.15,
+          "max": 1.0,
+          "count": 6
+        },
+        "context_precision": {
+          "mean": 0.4523809523809524,
+          "min": 0.0,
+          "max": 0.6666666666666666,
+          "count": 7
+        },
+        "context_recall": {
+          "mean": 0.8571428571428571,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 7
+        }
+      }
+    }
+  },
+  "status": "completed",
+  "error": null,
+  "ragas_available": false,
+  "completed_at": "2026-11-23T12:22:36.972783+00:00"
+}

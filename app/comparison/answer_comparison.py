@@ -5,6 +5,17 @@ editions, evaluates both outputs using identical framework-independent
 metrics, and produces per-sample and aggregate results.
 
 All comparison-specific logic lives within app/comparison.
+
+Metric layers:
+- Deterministic metrics (answer_correctness, answer_relevancy, faithfulness,
+  context_precision, context_recall) are always computed. They require no
+  external LLM calls and are suitable for unit testing.
+- Ragas metrics (ragas_faithfulness, ragas_answer_relevancy,
+  ragas_answer_correctness, ragas_context_precision, ragas_context_recall)
+  are computed only when the ``ragas`` package is installed and a real LLM
+  evaluator is available. They are the primary common evaluation methodology
+  and are kept separate from deterministic metrics to avoid conflating
+  keyword-overlap heuristics with LLM-based evaluation.
 """
 
 from __future__ import annotations
@@ -42,6 +53,75 @@ from app.comparison.contracts import (
 )
 from app.core.config import Settings
 
+# Ragas evaluation is optional. Import lazily so the module loads without it.
+_RAGAS_AVAILABLE: bool = False
+
+
+def _try_import_ragas() -> bool:
+    global _RAGAS_AVAILABLE
+    if _RAGAS_AVAILABLE:
+        return True
+    try:
+        from app.evaluation.ragas_evaluator import run_ragas_evaluation  # noqa: F401
+        _RAGAS_AVAILABLE = True
+    except Exception:
+        _RAGAS_AVAILABLE = False
+    return _RAGAS_AVAILABLE
+
+
+def _run_ragas_evaluation(
+    records: list[dict[str, Any]],
+    metric_names: list[str] | None = None,
+    llm: Any = None,
+    embeddings: Any = None,
+) -> dict[str, Any]:
+    """Run Ragas evaluation on a list of records.
+
+    Returns a dict with ``status``, ``error``, ``per_sample``, and
+    ``aggregate`` keys. When Ragas is unavailable, returns
+    ``{"status": "unavailable", "error": "..."}``.
+    """
+    if not _try_import_ragas():
+        return {
+            "status": "unavailable",
+            "error": "ragas package not installed",
+            "per_sample": [],
+            "aggregate": {},
+        }
+    from app.evaluation.ragas_evaluator import run_ragas_evaluation as _run
+
+    try:
+        return _run(records, metric_names=metric_names, llm=llm, embeddings=embeddings)
+    except Exception as exc:  # noqa: BLE001 - capture boundary errors
+        return {
+            "status": "failed",
+            "error": str(exc),
+            "per_sample": [],
+            "aggregate": {},
+        }
+
+
+# Ragas metric names used for the common comparison.
+RAGAS_METRIC_NAMES = [
+    "faithfulness",
+    "answer_relevancy",
+    "answer_correctness",
+    "context_precision",
+    "context_recall",
+]
+
+DETERMINISTIC_METRIC_NAMES = [
+    "answer_correctness",
+    "answer_relevancy",
+    "faithfulness",
+    "context_precision",
+    "context_recall",
+]
+
+ALL_METRIC_NAMES = DETERMINISTIC_METRIC_NAMES + [
+    f"ragas_{m}" for m in RAGAS_METRIC_NAMES
+]
+
 
 @dataclass
 class AnswerQualitySampleResult:
@@ -73,6 +153,7 @@ class AnswerQualityComparisonResult:
     aggregate: dict[str, Any] = field(default_factory=dict)
     status: str = "completed"
     error: str | None = None
+    ragas_available: bool = False
     completed_at: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
@@ -124,6 +205,7 @@ class AnswerQualityComparisonResult:
             "aggregate": self.aggregate,
             "status": self.status,
             "error": self.error,
+            "ragas_available": self.ragas_available,
             "completed_at": self.completed_at,
         }
 
@@ -176,13 +258,13 @@ def _build_adapter_documents(dataset: dict[str, Any]) -> list[dict[str, Any]]:
     return documents
 
 
-def _evaluate_sample(
+def _evaluate_sample_deterministic(
     sample: dict[str, Any],
     custom_result: AnswerResult,
     framework_result: AnswerResult,
     chunk_id_to_text: dict[str, str],
 ) -> dict[str, Any]:
-    """Evaluate one sample for both implementations using common metrics."""
+    """Evaluate one sample for both implementations using deterministic metrics."""
     question = sample["question"]
     reference = sample.get("reference_answer")
     expected_facts = sample.get("expected_facts", [])
@@ -232,8 +314,152 @@ def _evaluate_sample(
     }
 
 
+def _apply_ragas_evaluation(
+    samples: list[dict[str, Any]],
+    client: Any = None,
+    settings: Any = None,
+) -> dict[str, Any]:
+    """Run Ragas evaluation on all samples for both implementations.
+
+    Returns a dict with ``status``, ``error``, ``available`` keys.
+    When Ragas is unavailable or fails, samples are unchanged and
+    ``available`` is False.
+    """
+    if not _try_import_ragas():
+        return {
+            "status": "unavailable",
+            "error": "ragas package not installed",
+            "available": False,
+        }
+
+    import os
+
+    # Ragas 0.4.x internally creates an OpenAI-compatible client. Provide the
+    # Groq-configured key/base URL so it can initialize with our provider.
+    _s = settings
+    if _s is None:
+        from app.core.config import Settings as _Settings
+
+        _s = Settings()
+    if _s.groq_api_key:
+        os.environ.setdefault("OPENAI_API_KEY", _s.groq_api_key)
+    if _s.groq_base_url:
+        os.environ.setdefault("OPENAI_BASE_URL", _s.groq_base_url)
+
+    # Build a LangChain LLM backed by the configured Groq client for Ragas.
+    ragas_llm = None
+    if client is not None:
+        try:
+            from langchain_openai import ChatOpenAI
+
+            ragas_llm = ChatOpenAI(
+                model=_s.groq_model,
+                openai_api_key=_s.groq_api_key,
+                base_url=_s.groq_base_url,
+                temperature=0.0,
+            )
+        except Exception:
+            ragas_llm = None
+
+    # Build Ragas records for each implementation.
+    ragas_records: dict[str, list[dict[str, Any]]] = {
+        "custom": [],
+        "framework": [],
+    }
+    for sample in samples:
+        for impl in ("custom", "framework"):
+            impl_data = sample[impl]
+            ragas_records[impl].append(
+                {
+                    "user_input": sample["question"],
+                    "response": impl_data.get("answer"),
+                    "reference": sample.get("reference"),
+                    "retrieved_contexts": impl_data.get("contexts", []),
+                }
+            )
+
+    # Run Ragas evaluation for each implementation.
+    ragas_results: dict[str, dict[str, Any]] = {}
+    for impl in ("custom", "framework"):
+        ragas_results[impl] = _run_ragas_evaluation(
+            ragas_records[impl],
+            metric_names=RAGAS_METRIC_NAMES,
+            llm=ragas_llm,
+        )
+
+    # Check if either implementation succeeded with usable scores.
+    # Ragas may report status "completed" while returning all None scores
+    # (e.g., when the underlying LLM model is unavailable). Treat that as
+    # unavailable rather than successful.
+    def _has_usable_scores(ragas_result: dict[str, Any]) -> bool:
+        for row in ragas_result.get("per_sample", []):
+            if isinstance(row, dict):
+                for mname in RAGAS_METRIC_NAMES:
+                    v = row.get(mname)
+                    if isinstance(v, (int, float)) and not (
+                        isinstance(v, float) and v != v
+                    ):
+                        return True
+        return False
+
+    any_success = any(
+        r.get("status") == "completed" and _has_usable_scores(r)
+        for r in ragas_results.values()
+    )
+
+    if not any_success:
+        return {
+            "status": ragas_results["custom"].get("status", "failed"),
+            "error": "; ".join(
+                r.get("error", "") for r in ragas_results.values() if r.get("error")
+            ),
+            "available": False,
+        }
+
+    # Merge Ragas per-sample scores into samples.
+    sample_idx = 0
+    for sample in samples:
+        for impl in ("custom", "framework"):
+            impl_ragas = ragas_results[impl]
+            per_sample = impl_ragas.get("per_sample", [])
+            if sample_idx < len(per_sample):
+                row = per_sample[sample_idx]
+                if isinstance(row, dict):
+                    ragas_metrics = {}
+                    for mname in RAGAS_METRIC_NAMES:
+                        v = row.get(mname)
+                        ragas_metrics[f"ragas_{mname}"] = (
+                            float(v) if isinstance(v, (int, float)) else None
+                        )
+                    sample[impl]["metrics"].update(ragas_metrics)
+        sample_idx += 1
+
+    # Build aggregate Ragas metrics.
+    ragas_aggregate: dict[str, Any] = {}
+    for impl in ("custom", "framework"):
+        impl_ragas = ragas_results[impl]
+        aggregate = impl_ragas.get("aggregate", {})
+        ragas_aggregate[impl] = {}
+        for mname in RAGAS_METRIC_NAMES:
+            key = f"ragas_{mname}"
+            mdata = aggregate.get(mname, {})
+            ragas_aggregate[impl][key] = {
+                "mean": mdata if isinstance(mdata, (int, float)) else None,
+                "count": None,
+            }
+
+    return {
+        "status": "completed",
+        "error": None,
+        "available": True,
+        "results": ragas_results,
+        "aggregate": ragas_aggregate,
+    }
+
+
 def _compute_aggregate(
     samples: list[dict[str, Any]],
+    ragas_info: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Compute aggregate metrics across all samples for both implementations."""
     aggregate: dict[str, Any] = {
@@ -246,13 +472,9 @@ def _compute_aggregate(
         "framework": {},
     }
 
-    metric_names = [
-        "answer_correctness",
-        "answer_relevancy",
-        "faithfulness",
-        "context_precision",
-        "context_recall",
-    ]
+    metric_names = list(DETERMINISTIC_METRIC_NAMES)
+    if ragas_info and ragas_info.get("available"):
+        metric_names += [f"ragas_{m}" for m in RAGAS_METRIC_NAMES]
 
     for impl in ("custom", "framework"):
         completed = 0
@@ -261,7 +483,7 @@ def _compute_aggregate(
 
         for sample in samples:
             impl_data = sample[impl]
-            if impl_data["status"] == "completed":
+            if impl_data["status"] in ("completed", "mock", "success"):
                 completed += 1
             else:
                 failed += 1
@@ -287,6 +509,13 @@ def _compute_aggregate(
                 "count": len(vals),
             }
 
+    # Merge Ragas aggregate if available.
+    if ragas_info and ragas_info.get("available"):
+        for impl in ("custom", "framework"):
+            if impl in ragas_info.get("aggregate", {}):
+                for key, val in ragas_info["aggregate"][impl].items():
+                    aggregate[impl]["metrics"][key] = val
+
     return aggregate
 
 
@@ -298,6 +527,7 @@ def run_answer_quality_comparison(
     client: Any | None = None,
     settings: Any | None = None,
     experiment_id: str | None = None,
+    run_ragas: bool = False,
 ) -> AnswerQualityComparisonResult:
     """Run the answer-quality comparison for both implementations.
 
@@ -311,6 +541,10 @@ def run_answer_quality_comparison(
         settings: Optional Settings object. When None, a default Settings()
             is used.
         experiment_id: Optional experiment ID. When None, a UUID is generated.
+        run_ragas: When True, attempt Ragas evaluation on both implementations'
+            outputs. Requires the ``ragas`` package and a configured LLM
+            evaluator. When False (default), only deterministic metrics are
+            computed.
 
     Returns:
         AnswerQualityComparisonResult with per-sample and aggregate results.
@@ -336,7 +570,6 @@ def run_answer_quality_comparison(
     )
 
     if db is None:
-        # Framework adapter requires a database handle.
         framework_result_error = "Framework adapter requires a database handle"
         framework_adapter = None
     else:
@@ -382,13 +615,20 @@ def run_answer_quality_comparison(
                 top_k=top_k,
             )
 
-        sample_result = _evaluate_sample(
+        sample_result = _evaluate_sample_deterministic(
             sample, custom_result, framework_result, chunk_id_to_text
         )
         samples.append(sample_result)
 
-    # Determine overall status. "mock" is a successful (deterministic) status.
-    successful_statuses = {"completed", "mock"}
+    # Run Ragas evaluation if requested and available.
+    ragas_info = None
+    ragas_available = False
+    if run_ragas:
+        ragas_info = _apply_ragas_evaluation(samples, client=client, settings=settings)
+        ragas_available = ragas_info.get("available", False)
+
+    # Determine overall status. "mock" and "success" are successful statuses.
+    successful_statuses = {"completed", "mock", "success"}
     all_failed = all(
         s["custom"]["status"] not in successful_statuses
         and s["framework"]["status"] not in successful_statuses
@@ -396,7 +636,7 @@ def run_answer_quality_comparison(
     )
     overall_status = "failed" if all_failed else "completed"
 
-    aggregate = _compute_aggregate(samples)
+    aggregate = _compute_aggregate(samples, ragas_info)
 
     run_config = ComparisonRunConfig(
         implementation=Implementation.custom,  # comparison spans both
@@ -405,7 +645,11 @@ def run_answer_quality_comparison(
         experiment_id=experiment_id,
         top_k=top_k,
         tenant_id=effective_tenant_id,
-        extra={"framework_included": db is not None},
+        extra={
+            "framework_included": db is not None,
+            "ragas_available": ragas_available,
+            "ragas_run": run_ragas,
+        },
     )
 
     return AnswerQualityComparisonResult(
@@ -416,6 +660,7 @@ def run_answer_quality_comparison(
         samples=samples,
         aggregate=aggregate,
         status=overall_status,
+        ragas_available=ragas_available,
     )
 
 
@@ -441,35 +686,21 @@ def save_markdown_report(
     lines.append(f"- **Completed at:** {result.completed_at}")
     lines.append(f"- **Top-k:** {result.run_config.top_k}")
     lines.append(f"- **Tenant:** {result.run_config.tenant_id}")
+    lines.append(f"- **Ragas available:** {result.ragas_available}")
     lines.append("")
 
     # Aggregate section.
     lines.append("## Aggregate Results")
     lines.append("")
     lines.append(
-        f"| Metric | Custom Mean | Custom Count | Framework Mean | Framework Count |"
+        "| Metric | Custom Mean | Custom Count | Framework Mean | Framework Count |"
     )
     lines.append(
-        f"|--------|-------------|--------------|----------------|-----------------|"
+        "|--------|-------------|--------------|----------------|-----------------|"
     )
-    for impl in ("custom", "framework"):
-        impl_data = result.aggregate.get(impl, {})
-        metrics = impl_data.get("metrics", {})
-        for mname, mdata in metrics.items():
-            # This row structure is awkward; we'll restructure below.
-            pass
-    # Rebuild aggregate table properly.
-    lines.pop()
-    lines.pop()
-    lines.append("| Metric | Custom Mean | Custom Count | Framework Mean | Framework Count |")
-    lines.append("|--------|-------------|--------------|----------------|-----------------|")
-    metric_names = [
-        "answer_correctness",
-        "answer_relevancy",
-        "faithfulness",
-        "context_precision",
-        "context_recall",
-    ]
+    metric_names = list(DETERMINISTIC_METRIC_NAMES)
+    if result.ragas_available:
+        metric_names += [f"ragas_{m}" for m in RAGAS_METRIC_NAMES]
     for mname in metric_names:
         c = result.aggregate.get("custom", {}).get("metrics", {}).get(mname, {})
         f = result.aggregate.get("framework", {}).get("metrics", {}).get(mname, {})
@@ -518,7 +749,10 @@ def save_markdown_report(
     lines.append("")
     lines.append("- This is a small, deterministic evaluation dataset.")
     lines.append("- No statistical significance claims are made from these results.")
-    lines.append("- Faithfulness is computed heuristically (keyword overlap), not via LLM judgment.")
+    lines.append(
+        "- Deterministic faithfulness uses keyword overlap, not LLM judgment. "
+        "Ragas faithfulness (when available) uses LLM-based evaluation."
+    )
     lines.append("- Mock mode (no LLM client) returns deterministic mock answers.")
 
     with open(path, "w", encoding="utf-8") as f:

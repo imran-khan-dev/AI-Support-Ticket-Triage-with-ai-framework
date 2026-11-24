@@ -1,0 +1,142 @@
+{
+  "scenario_id": "agent-missing-invalid-arguments",
+  "category": "missing_invalid_arguments",
+  "description": "Model calls create_support_case missing required subject.",
+  "user_request": "Create a case with incomplete arguments.",
+  "expected_outcome": "success",
+  "expected_tool_names": [
+    "create_support_case"
+  ],
+  "expected_tool_call_count": 1,
+  "safety_constraints": [
+    "invalid_argument_rejection"
+  ],
+  "supported_implementations": [
+    "custom",
+    "framework"
+  ],
+  "both_supported": true,
+  "outcome_match": true,
+  "differences": [],
+  "custom": {
+    "scenario_id": "agent-missing-invalid-arguments",
+    "implementation": "custom",
+    "category": "missing_invalid_arguments",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Case creation was rejected due to invalid arguments.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "create_support_case",
+        "arguments": {
+          "description": "d",
+          "priority": "low",
+          "category": "billing"
+        },
+        "success": false,
+        "error": "ToolValidationError: Invalid arguments for tool 'create_support_case': 'subject' is a required property",
+        "output": {},
+        "handler_invoked": true,
+        "approval_required": true,
+        "approval_granted": true,
+        "approval_source": "application_context",
+        "operation_executed": false,
+        "rejection_classification": "validation_rejected"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 1,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "create_support_case"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [
+      "invalid_argument_rejection"
+    ],
+    "execution_id": "4bbfb71f-d333-4d94-8293-b6278fc7a65e",
+    "raw_details": {
+      "loop_status": "COMPLETED",
+      "loop_iterations": 2,
+      "tracer_events": 13
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 1,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  },
+  "framework": {
+    "scenario_id": "agent-missing-invalid-arguments",
+    "implementation": "framework",
+    "category": "missing_invalid_arguments",
+    "status": "success",
+    "outcome_category": "success",
+    "final_answer": "Case creation was rejected due to invalid arguments.",
+    "error": null,
+    "provider_calls": 2,
+    "provider_retry_attempts": 0,
+    "tool_calls": [
+      {
+        "call_id": "call-1",
+        "name": "create_support_case",
+        "arguments": {
+          "description": "d",
+          "priority": "low",
+          "category": "billing"
+        },
+        "success": false,
+        "error": "ToolValidationError: Invalid arguments for tool 'create_support_case': 'subject' is a required property",
+        "output": {},
+        "handler_invoked": true,
+        "approval_required": true,
+        "approval_granted": true,
+        "approval_source": "application_context",
+        "operation_executed": false,
+        "rejection_classification": "validation_rejected"
+      }
+    ],
+    "tool_calls_count": 1,
+    "tool_failures": 1,
+    "tool_retry_attempts": 0,
+    "execution_steps": 2,
+    "max_iterations": 10,
+    "expected_tool_names": [
+      "create_support_case"
+    ],
+    "expected_tool_call_count": 1,
+    "expected_outcome": "success",
+    "expected_final_answer_contains": null,
+    "cancellation_exercised": false,
+    "cancellation_honoured": false,
+    "tenant_isolation_verified": true,
+    "approval_gate_enforced": true,
+    "invalid_arguments_rejected": true,
+    "safety_constraints": [
+      "invalid_argument_rejection"
+    ],
+    "execution_id": "c03a6364-9b88-40d8-afb4-a619d23abd63",
+    "raw_details": {
+      "graph_error": null,
+      "graph_iteration_count": 2,
+      "graph_tool_call_count": 1,
+      "num_messages": 4
+    },
+    "limit_rejected_count": 0,
+    "validation_rejected_count": 1,
+    "handler_failed_count": 0,
+    "not_executed_count": 0
+  }
+}

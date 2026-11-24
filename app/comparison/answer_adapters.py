@@ -3,6 +3,18 @@
 Each adapter accepts a normalized answer-quality request, executes its own
 answer-generation path, and returns the generated answer plus the retrieved
 context. No implementation is used as a fallback for the other.
+
+Retrieval isolation:
+- Custom adapter uses the Custom Retrieval Stack (in-memory BM25) for
+  pre-retrieved context and passes ``db=None`` to the Custom Agent
+  Orchestrator. The Custom agent's ``search_knowledge`` tool raises
+  ``RuntimeError("Missing tenant context for knowledge search.")`` before
+  reaching ``KnowledgeService`` (LlamaIndex), so LlamaIndex is never invoked
+  for Custom answer generation.
+- Framework adapter uses LlamaIndex BM25 (via ``FrameworkBM25RetrievalAdapter``
+  backed by ``KnowledgeService``) for pre-retrieved context and passes
+  ``db=self._db`` to the Framework LangGraph agent, so ``search_knowledge``
+  uses LlamaIndex as intended.
 """
 
 from __future__ import annotations
@@ -47,6 +59,10 @@ class AnswerAdapter:
     def generate(self, question: str, tenant_id: str, top_k: int = 5) -> AnswerResult:
         raise NotImplementedError
 
+    def retrieval_backend(self) -> str:
+        """Return the name of the retrieval backend used by this adapter."""
+        raise NotImplementedError
+
 
 # ---------------------------------------------------------------------------
 # Custom edition answer adapter
@@ -59,6 +75,12 @@ class CustomAnswerAdapter(AnswerAdapter):
     (via CustomBM25RetrievalAdapter), then generates an answer using the
     Custom Agent Orchestrator's run_agent function with the retrieved
     context supplied as part of the user message.
+
+    Retrieval isolation: passes ``db=None`` to ``run_agent`` so the Custom
+    agent's ``search_knowledge`` tool cannot reach ``KnowledgeService``
+    (LlamaIndex). It raises RuntimeError before the LlamaIndex path is
+    entered, guaranteeing the Custom Retrieval Stack is the only retrieval
+    backend used.
     """
 
     implementation = "custom"
@@ -74,6 +96,9 @@ class CustomAnswerAdapter(AnswerAdapter):
         self._retriever = CustomBM25RetrievalAdapter(chunks)
         self._settings = settings
         self._client = client
+
+    def retrieval_backend(self) -> str:
+        return "custom-retrieval-stack"
 
     def generate(self, question: str, tenant_id: str, top_k: int = 5) -> AnswerResult:
         # Retrieve context using the Custom Retrieval Stack.
@@ -105,6 +130,8 @@ class CustomAnswerAdapter(AnswerAdapter):
             augmented_question = question
 
         # Generate answer using the Custom Edition's existing answer-generation path.
+        # db=None guarantees the search_knowledge tool cannot reach KnowledgeService
+        # (LlamaIndex). RuntimeError is raised before get_knowledge_service(db).
         try:
             from app.agent_core.agent import run_agent as custom_run_agent
 
@@ -135,7 +162,7 @@ class CustomAnswerAdapter(AnswerAdapter):
             context_chunk_ids=[c.chunk_id for c in contexts],
             status=status,
             error=error,
-            metadata={"top_k": top_k, "num_contexts": len(contexts)},
+            metadata={"top_k": top_k, "num_contexts": len(contexts), "retrieval_backend": self.retrieval_backend()},
         )
 
 
@@ -150,6 +177,9 @@ class FrameworkAnswerAdapter(AnswerAdapter):
     backed by KnowledgeService), then generates an answer using the
     Framework LangGraph agent's run_agent function with the retrieved
     context supplied as part of the user message.
+
+    Retrieval isolation: passes ``db=self._db`` to ``run_agent`` so
+    ``search_knowledge`` uses LlamaIndex as intended for the Framework edition.
     """
 
     implementation = "framework"
@@ -174,6 +204,9 @@ class FrameworkAnswerAdapter(AnswerAdapter):
         )
         self._settings = settings
         self._client = client
+
+    def retrieval_backend(self) -> str:
+        return "llamaindex"
 
     def generate(self, question: str, tenant_id: str, top_k: int = 5) -> AnswerResult:
         # Retrieve context using LlamaIndex BM25.
@@ -205,6 +238,7 @@ class FrameworkAnswerAdapter(AnswerAdapter):
             augmented_question = question
 
         # Generate answer using the Framework Edition's existing answer-generation path.
+        # db=self._db allows search_knowledge to use KnowledgeService (LlamaIndex).
         try:
             from app.modules.agent.service import run_agent as framework_run_agent
 
@@ -235,5 +269,5 @@ class FrameworkAnswerAdapter(AnswerAdapter):
             context_chunk_ids=[c.chunk_id for c in contexts],
             status=status,
             error=error,
-            metadata={"top_k": top_k, "num_contexts": len(contexts)},
+            metadata={"top_k": top_k, "num_contexts": len(contexts), "retrieval_backend": self.retrieval_backend()},
         )
